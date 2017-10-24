@@ -1,11 +1,11 @@
 ---
 layout: page
 title: "About"
-description: "你的博客描述 " 
+description: "这里是我的博客小站，记录了一些日常心得，不定时更新欢迎关注 " 
 header-img: "img/green.jpg"
 ---
 
-这一页填写你的自我介绍。
+一名普普通通的码农
 
 
 
