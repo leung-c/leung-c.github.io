@@ -230,4 +230,5 @@ Class rootObjcMetaCls = object_getClass(rootObjClass);
 * 最上层的Meta Class的isa指针指向自己，形成一个回路
 * 每一个Meta Class的super class指针指向它原本Class的 Super Class的Meta Class。但是最上层的Meta Class的 Super Class指向NSObject Class本身
 * 最上层的NSObject Class的super class指向 nil
+
 看到这里文章开头的四个问题你能分析出来吗？
