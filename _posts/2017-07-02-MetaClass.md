@@ -43,7 +43,7 @@ description: 什么是OC中的对象、类、元类，它们被如何表示，�
 ```
 
 ###### 3.下面代码会编译能否通过？运行会闪退？输出是什么？ 
-``` C
+```objc
 @interface NSObject (Animal)
 + (void) eat;
 @end
@@ -56,7 +56,7 @@ description: 什么是OC中的对象、类、元类，它们被如何表示，�
 [[NSObject new] eat];
  ```
 ###### 4.下面代码会编译能否通过？运行会闪退？输出是什么？ 
-``` C
+```objc
 @interface WhiteCat : Cat
 - (void)speak;
 @end
@@ -78,7 +78,7 @@ description: 什么是OC中的对象、类、元类，它们被如何表示，�
 ##### 什么数据结构才能称之为对象？
 在面向对象的语言体系中对象指的是类的实例，每个对象都有类。这是面向对象的基本概念，那么对象和类采用什么样的数据结构进行表示的呢？在Objective-C中，含有一个指针且该指针可以正确指向类的数据结构，都可以被视作为对象。
 在Objective-C中，对象最基本的定义是这样的：
-``` OC
+```objc
 /// Represents an instance of a class.
 struct objc_object {
     Class isa  OBJC_ISA_AVAILABILITY;
@@ -107,7 +107,7 @@ objc_object结构体表示某个类的一个实例(对象)，id表示objc_object
 self和supper的决定了是编译时方法调用是使用objc_msgSend还是的objc_msgSendSuper，objc_msgSendSuper将直接从superClass中查找对应方法。self 是类的隐藏参数，指向当前调用方法的实例（对象或类对象）。而 super 是一个 Magic Keyword， 它本质是一个编译器标示符，和 self 是指向的同一个消息接受者。上面的例子不管调用[self class]还是[super class]，接受消息的对象都是当前 Animal ＊xxx 这个对象。而不同的是，super是告诉编译器，调用 class 这个方法时，要去父类的方法，而不是本类里的。当使用 self 调用方法时，会从当前类的方法列表中开始找，如果没有，就从父类中再找；而当使用 super 时，则从父类的方法列表中开始找。然后调用父类的这个方法。
 
 类的定义 
-``` OC
+```objc
 struct objc_class {
     Class isa  OBJC_ISA_AVAILABILITY;
 
@@ -130,7 +130,7 @@ struct objc_class {
 2. super_class：指向该类的父类
 3. cache：缓存最近使用的方法。一个接收者对象接收到一个消息时，它会根据isa指针去查找能够响应这个消息的对象。在实际使用中，这个对象只有一部分方法是常用的，很多方法其实很少用或者根本用不上。这种情况下，如果每次消息来时，我们都是methodLists中遍历一遍，性能势必很差。这时，cache就派上用场了。在我们每次调用过一个方法后，这个方法就会被缓存到cache列表中，下次调用的时候runtime就会优先去cache中查找，如果cache没有，才去methodLists中查找方法。这样，对于那些经常用到的方法的调用，但提高了调用的效率。
 4. ivars：用来表示instance variable(实例变量，跟某个对象关联，不能被静态方法使用，与之想对应的是class variable)，其声明如下，类中定义的属性其实本质就是成员变量，只是编译器会自动帮我们加上对应的getter和setter
-``` OC
+```objc
  struct objc_ivar {
      char *ivar_name   OBJC2_UNAVAILABLE;
      char * ivar_type  OBJC2_UNAVAILABLE;
@@ -142,7 +142,7 @@ struct objc_class {
 ```
 > objc_ivar保存了对象的成员变量的名称、类型、地址偏移量的关键信息，
 5. methodLists：用来表示instance methods(实例方法，跟某个对象关联，不能被静态方法使用，与之想对应的是class method)，其声明如下：
-``` OC
+```objc
 struct objc_method {
     SEL method_name    OBJC2_UNAVAILABLE;
     char *method_types                                       OBJC2_UNAVAILABLE;
@@ -153,7 +153,7 @@ struct objc_method {
 从以上的定义可以看出对象的属性、方法的核心其实在于类，它决定对象具备哪些行为和能力。那么类方法和类静态变量是在哪里维护的呢？这涉及我们平时编码中几乎不会接触的一个概念：元类(MetaClass)，元(Meta)表示用于描述数据的数据，意味着元类是用于描述类的，类描述了对象有哪些属性特征和行为，同样元类描述了类有哪些属性特征和行为。
 类其实也是一种对象，我们称之为：类对象，所以和对象一样它有isa指针指向它所属的类（元类）。isa指针的类型是Class，说明元类和类用的是同一种数据结构，Objective-C的设计哲学中，一切都是对象，那么元类也可以看做为对象，这和万物皆对象的思想是一致的。这里我们可以思考一个问题：对象和类的isa指向它们所属的类，那元类的isa指针呢？按照Class的定义isa指向所属类，而元类本身也是Class，isa的指针不可能无限指向新的类。
 我们可以写代码验证一下： 
-``` OC
+```objc
    NSObject* obj = [[NSObject alloc]init];
         //类
         Class instanceClass = [obj class];
@@ -166,7 +166,7 @@ struct objc_method {
 ![](https://ws4.sinaimg.cn/large/006tKfTcgy1flrysed41tj30dg03j751.jpg)
 
 NSObject元类的isa指向了自己，这里我们需要怀疑的是NSObject是所有类的根类，它的元类是否具有特殊性，就像它没有父类一样，我们新建一个类试一试： 
-``` OC
+```objc
 Animal* animal = [[Animal alloc]init];
         //类
 Class instanceClass = [animal class];
@@ -189,7 +189,7 @@ Class rootObjcMetaCls = object_getClass(rootObjClass);
 * 最上层的Meta Class的isa指针指向自己，形成一个回路
 
 在上面的class的定义中，有一个super_class成员，它指向当前类的父类，那么MetaClass的super_class指向哪里呢？我新建一个子类看看：
-``` OC
+```objc
  // Cat继承自Animal类
         Cat* animal = [[Cat alloc]init];
         //类
