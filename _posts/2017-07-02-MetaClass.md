@@ -14,7 +14,7 @@ description: 什么是OC中的对象、类、元类，它们被如何表示，�
 本文开始之前先看一下下面四个习题：
 
 ###### 1.下面代码的输出是什么？
-``` C
+```objc
 @interface BlackCat : Cat
 @end
 @implementation BlackCat
@@ -28,7 +28,7 @@ description: 什么是OC中的对象、类、元类，它们被如何表示，�
 }
 ```
 ###### 2.下面代码的输出是什么？ 
-``` C
+```objc
  @interface Animal : NSObject
  @property(copy,nonatomic) NSString* name;
  @end
