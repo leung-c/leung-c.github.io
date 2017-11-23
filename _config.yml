@@ -5,7 +5,7 @@ tagline: "cn"
 description: ""  # 一句话描述你的博客
 baseurl: "/leung-c.github.io"
 url: "https://leung-c.github.io"  # 此处填写你的博客地址 
-
+markdown: pandoc
 # About/contact
 owner: 
   name: "LiangChao" # 填写作者信息：名字
