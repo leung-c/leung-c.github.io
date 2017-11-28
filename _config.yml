@@ -5,8 +5,7 @@ tagline: "cn"
 description: ""  # 一句话描述你的博客
 baseurl: "/leung-c.github.io"
 url: "https://leung-c.github.io"  # 此处填写你的博客地址 
-markdown: pandoc
-pygments: 1
+
 # About/contact
 owner: 
   name: "LiangChao" # 填写作者信息：名字
@@ -23,6 +22,9 @@ github_username:
 facebook_username: 
 weibo_username: 
 zhihu_username: 
+
+plugins:
+  - jekyll-paginate
 
 # Build settings  
 # use Github Flavored Markdown !important  

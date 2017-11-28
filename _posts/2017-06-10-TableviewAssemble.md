@@ -1,10 +1,10 @@
 ---
 layout: post
-title: 一种简单灵活组装tableview数据和cell的方式
-date: 2017-06-12
+title: 一种灵活简单的tablview组装模式
+date: 2017-06-10
 categories: blog
-tags: [objective-c,tbaleview,MVVM]
-description: MVVM模式下的tableview组装
+tags: [objective-c,tableview，MVVM]
+description: MVVM模式下tableview数据和cell的组装
 ---
 
 UITableView可以说是ios开发过程中用到频率最高的控件了，随便打开一个的APP，随便进入一个页面百分之八九十就是利用tableView实现的，下图就是京东和天猫最重要的商品详情页面和某APP简单的个人信息页。
