@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 一种灵活使用的TableView组装方式
+title: TableView灵活的数据和cell组装方式
 date: 2017-06-10
 categories: blog
 tags: [objective-c,TableView,MVVM]
@@ -8,6 +8,7 @@ description: 利用MVVM灵活组装TableView的数据及其要展示的cell
 ---
 
 ### TableView组装方式
+
 UITableView可以说是ios开发过程中用到频率最高的控件了，随便打开一个的APP，随便进入一个页面百分之八九十就是利用tableView实现的，下图就是京东和天猫最重要的商品详情页面和某APP简单的个人信息页。
 ![](https://ws4.sinaimg.cn/large/006tNc79gy1flwo2wquqnj30ku1121kx.jpg)![](https://ws2.sinaimg.cn/large/006tNc79gy1flwo2vtbfjj30ku112dmo.jpg)![](https://ws2.sinaimg.cn/large/006tNc79gy1flwo2vg1dtj30ku112nkv.jpg)
 ![](https://ws4.sinaimg.cn/large/006tNc79gy1flwo54xd9gj30ku112gqt.jpg)
