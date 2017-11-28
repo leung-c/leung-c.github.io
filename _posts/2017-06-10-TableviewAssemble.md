@@ -1,32 +1,36 @@
 ---
 layout: post
-title: TableView灵活的数据和cell组装方式
-date: 2017-06-10
+title: 一种简单灵活组装tableview数据和cell的方式
+date: 2017-06-12
 categories: blog
-tags: [objective-c,TableView,MVVM]
-description: 利用MVVM灵活组装TableView的数据及其要展示的cell
+tags: [objective-c,tbaleview,MVVM]
+description: MVVM模式下的tableview组装
 ---
 
-### TableView组装方式
-
 UITableView可以说是ios开发过程中用到频率最高的控件了，随便打开一个的APP，随便进入一个页面百分之八九十就是利用tableView实现的，下图就是京东和天猫最重要的商品详情页面和某APP简单的个人信息页。
-![](https://ws4.sinaimg.cn/large/006tNc79gy1flwo2wquqnj30ku1121kx.jpg)![](https://ws2.sinaimg.cn/large/006tNc79gy1flwo2vtbfjj30ku112dmo.jpg)![](https://ws2.sinaimg.cn/large/006tNc79gy1flwo2vg1dtj30ku112nkv.jpg)
-![](https://ws4.sinaimg.cn/large/006tNc79gy1flwo54xd9gj30ku112gqt.jpg)
+
+![](https://ws1.sinaimg.cn/large/006tNc79gy1flxs1xt2drj30b40jr1kx.jpg)![](https://ws1.sinaimg.cn/large/006tNc79gy1flxs1xfm3nj30b40jrgrt.jpg)![]
+![](https://ws2.sinaimg.cn/large/006tNc79gy1flxs36skv1j30b40jrqk4.jpg)
+
 复杂多变的页面体现了tableview极高的灵活性，甚至天猫、京东的首页都是可以用tableview去实现的。当然他们的首页应该是基于ScrollView，仿tableview复用机制，自己实现了一个组件，具体实现这里不作叙述，后面有机会再探讨。
 回想一下TableView的使用，核心就是下面几个代理方法：
 * cell的行数
+
 ```objc
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
 ```
 * 指定位置cell的高度
+
 ```objc
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 ```
 * 返回指定位置要展示的cell
+
 ```objc
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 ```
 * 选中指定位置的cell
+
 ```objc
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 ```
@@ -213,5 +217,5 @@ InfoCellViewModel *coupon = [InfoCellViewModel new];
 
 采用这种方式后续的维护和扩展都极其方便，无非就是新增cell、有可能需要新增ViewModel类、VC中组装对应ViewModel对象就行了，对于修改和移除也只需对应项的ViewModel，而且非常适合多人开发合作，有人写cell有人写ViewModel有人写VC，当然这本身就是MVVM的一个有点。
 
-回到前面最后的那张图，采用这种方式很容易就可以实现这个功能，以后如果要添加新的信息，只需要在数据源中添加就行了。但是，仔细想一下是这里是否和上面商品详情的实现有重复的代码呢？整个Cell的构造和点击触发其实是一样的；另外，如果需要显示SectionHeaderView或者SectionFooterView呢？CollectionView的数据组装是不是也可以这么做？基于这些问题我门对这种模式进行了抽象和扩展，形成一套简单的类库，基于这套模式，新的页面几乎不需要处理TableView／CollectionView的代理方法，而专注于页面数据的组装和业务逻辑。github地址:
+回到前面最后的那张图，采用这种方式很容易就可以实现这个功能，以后如果要添加新的信息，只需要在数据源中添加就行了。但是，仔细想一下是这里是否和上面商品详情的实现有重复的代码呢？整个Cell的构造和点击触发其实是一样的；另外，如果需要显示SectionHeaderView或者SectionFooterView呢？CollectionView的数据组装是不是也可以这么做？基于这些问题我门对这种模式进行了抽象和扩展，形成一套简单的类库，基于这套模式，新的页面几乎不需要处理TableView／CollectionView的代理方法，而专注于页面数据的组装和业务逻辑。github地址:https://github.com/leung-c/LCListComponent.git
 
