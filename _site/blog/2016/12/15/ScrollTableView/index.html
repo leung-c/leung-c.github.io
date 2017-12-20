@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+
+    <title>ScrollView内嵌tableView无缝滚动的实现 - Code Playground</title>
+
+    <link rel="canonical" href="http://localhost:4000/leung-c.github.io/blog/2016/12/15/ScrollTableView/">
+
+    <!-- Icons -->
+  <link rel="shortcut icon" href="img/favicon.ico">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/clean-blog.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+
+
+
+
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/leung-c.github.io/">Code Playground</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="/leung-c.github.io/">Home</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/about/">About</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/archive/">Archive</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/milestone/">milestone</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/tags/">Tags</a>
+                </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+
+    <!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/leung-c.github.io/img/green.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="Tags">
+                        
+                        <a class="tag" href="/Tags/#scrollview" title="scrollview">scrollview</a>
+                        
+                        <a class="tag" href="/Tags/#tableview" title="tableview">tableview</a>
+                        
+                    </div>
+                    <h1>ScrollView内嵌tableView无缝滚动的实现</h1>
+                    
+                    <span class="meta">Posted by LC on December 15, 2016</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 post-container">
+
+                <p>当UIScrollView内部嵌套了另一个ScrollView(TableView、CollectionView、WebView等)时，如何处理外部ScrollView和内部ScrollView的无缝平滑滚动，本文提供了一种简单的方式来处理这种情况。</p>
+
+<h2 id="scrollview内嵌tableview无缝滚动的实现">ScrollView内嵌tableView无缝滚动的实现</h2>
+
+<blockquote>
+  <p>本文从以前简书博文迁移过来，更新了部分内容</p>
+</blockquote>
+
+<h3 id="功能业务场景">功能业务场景</h3>
+
+<p>大家在开发过程中应该遇到过这样的页面交互设计：在一个纵向滚动的页面中，上面的是一块信息的v展示区域，下面是一个列表，用户在滚动页面时，先是整体页面滚动，当动到一个阈值临界点时，上面部分固定，下面的列表继续滚动。这里只是做一个大概的描述，实际的页面有更多复杂的细节和交互，在我们常用的APP中类似这种的典型页面如下图：
+<img src="https://ws2.sinaimg.cn/large/006tKfTcgy1fmmzsujel3j30ku1127wh.jpg" alt="" />
+<img src="https://ws3.sinaimg.cn/large/006tKfTcgy1fmmzsj72ssj30ku112x1a.jpg" alt="" /></p>
+<blockquote>
+  <p>饿了么商家主页</p>
+</blockquote>
+
+<p>这里对视图结构的具体实现不做分析，着重于对上面描述的滚动交互实现的讨论，分析一下问题：</p>
+
+<ol>
+  <li>外层的ScrollView存在一个阈值，当其ContentOffset未达到这个阈值时，内部ScrollView不滚动，外层ScrollView继续滚动，达到／超过阈值后外部ScrollView不可滚动，内部ScrollView可滚动。</li>
+  <li>当内部的ScrollView的ContentOffset小于或等于0时，内部ScrollView不滚动，外部ScrollView可滚动。</li>
+  <li>页面跟随手指滑动而滚动，当外部Scroll达到阈值，手指继续滑动，此时外部ScrollView不再滚动而是下面列表进行滚动，注意这里有一个手势响应对象的转移。</li>
+</ol>
+
+<h3 id="scrollviewdidscroll">scrollViewDidScroll</h3>
+
+<p>需要对滚动进行实时的处理，显然我们要用刀ScrollViewDidScroll这个代理方法了。假设：外部ScrollView滚到100后固定；外部ScrollView和内部ScrollView的代理对象为同一个。里面的代码大致如下：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">scrollViewDidScroll</span><span class="p">:(</span><span class="n">UIScrollView</span><span class="o">*</span><span class="p">)</span><span class="nv">scrollView</span><span class="p">{</span>
+    <span class="k">static</span> <span class="n">CGFloat</span> <span class="n">fixedContentOffsetY</span> <span class="o">=</span> <span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">scrollView</span> <span class="o">==</span> <span class="n">_superScrollView</span><span class="p">){</span>
+        <span class="n">BOOL</span> <span class="n">scrollDown</span> <span class="o">=</span> <span class="p">(</span><span class="n">scrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">_superScrollLastOffsetY</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">scrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">fixedContentOffsetY</span> <span class="o">&amp;&amp;</span> <span class="n">scrollDown</span><span class="p">){</span>
+            <span class="n">scrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">fixedContentOffsetY</span><span class="p">);</span>
+            <span class="n">scrollView</span><span class="p">.</span><span class="n">scrollEnabled</span>  <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+            <span class="n">_childScrollView</span><span class="p">.</span><span class="n">scrollEnabled</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">scrollDown</span><span class="p">){</span>
+            <span class="n">scrollView</span><span class="p">.</span><span class="n">scrollEnabled</span>  <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="n">_superScrollLastOffsetY</span> <span class="o">=</span> <span class="n">scrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+        <span class="n">BOOL</span> <span class="n">scrollDown</span> <span class="o">=</span> <span class="p">(</span><span class="n">scrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">_childScrollLastOffsetY</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">scrollDown</span><span class="p">){</span>
+            <span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+            <span class="n">_childScrollView</span><span class="p">.</span><span class="n">scrollEnabled</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+            <span class="n">_superScrollView</span><span class="p">.</span><span class="n">scrollEnabled</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">scrollDown</span><span class="p">){</span>
+            <span class="n">_childScrollView</span><span class="p">.</span><span class="n">scrollEnabled</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        <span class="n">_childScrollLastOffsetY</span> <span class="o">=</span> <span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>以上经过真机滑动调试，可能需要做调整，例如：滑到临界点后往回滑动等；但整体的实现应该差不多。这种方法可以解决前面两个问题但是对于第三个问题没办法解决，每次滑动到临界点，继续滑动时superScrollView的确是不滚了，但是childScrollView也没有滚，这是因为每次对手势的识别，是superScrollView、childScrollView两个的其中一个，只有当手指离开屏幕，再次触摸开始滑动时，才有可能(取决于手势的位置)切换到另一个ScrollView识别新的手势。
+问题的核心就在于：每次的滑动手势需要两个ScrollView都能响应！在这个前提下，我们再通过判断是否达到临界点条件来决定哪个ScrollView的手势响应不处理。
+能否拿到UIScrollView的手势对象呢？如果能拿到，我们可以在手势对象的代理方法中来明确设定某个ScrollView的ContentOffset，这似乎是一个可行办法，UIScrollView上的确有个panGestureRecognizer属性，然而看一下这个属性的定义：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">/</span> <span class="n">Use</span> <span class="n">these</span> <span class="n">accessors</span> <span class="n">to</span> <span class="n">configure</span> <span class="n">the</span> <span class="n">scroll</span> <span class="n">view</span><span class="err">'</span><span class="n">s</span> <span class="n">built</span><span class="o">-</span><span class="k">in</span> <span class="n">gesture</span> <span class="n">recognizers</span><span class="p">.</span>
+<span class="c1">// Do not change the gestures' delegates or override the getters for these properties.
+</span>
+<span class="c1">// Change `panGestureRecognizer.allowedTouchTypes` to limit scrolling to a particular set of touch types.
+</span><span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">readonly</span><span class="p">)</span> <span class="n">UIPanGestureRecognizer</span> <span class="o">*</span><span class="n">panGestureRecognizer</span> <span class="n">NS_AVAILABLE_IOS</span><span class="p">(</span><span class="mi">5</span><span class="n">_0</span><span class="p">);</span>
+
+</code></pre></div></div>
+<p>苹果的注释中强调：不要改变这个手势的delegate对象或者重写这个属性的get方法。苹果关了一扇门，却给我们留一扇窗。</p>
+
+<h3 id="uigesturerecognizerdelegate">UIGestureRecognizerDelegate</h3>
+
+<p>UIGestureRecognizer(手势识别器)的delegate需要遵守UIGestureRecognizerDelegate协议，在这个协议中有这样的一个方法声明：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="nf">gestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">gestureRecognizer</span> <span class="nf">shouldRecognizeSimultaneouslyWithGestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">otherGestureRecognizer</span>
+</code></pre></div></div>
+<p>从上面Scroll的的手势识别器的定义中得知，Scroll中内置的手势识别器的delegate就是ScrollView本身。</p>
+
+<p>我们看一下苹果官方对这个方法的说明：</p>
+<blockquote>
+  <p>Asks the delegate if two gesture recognizers should be allowed to recognize gestures simultaneously.
+This method is called when recognition of a gesture by either gestureRecognizer or otherGestureRecognizer would block the other gesture recognizer from recognizing its gesture. Note that returning YES is guaranteed to allow simultaneous recognition; returning NO, on the other hand, is not guaranteed to prevent simultaneous recognition because the other gesture recognizer’s delegate may return YES.
+简单翻译一下：
+询问代理对象是否允许两个手势识别器同时识别手势。这个方法在gestureRecognizer(识别器1)或者otherGestureRecognizer(识别器2)进行识别会被调用。如果返回YES表示可以进行同时识别；返回NO则保证不阻止同时识别，因为其它的识别器代理有可能返回YES。</p>
+</blockquote>
+
+<p>因此，我们需要帮UIScrollView实现这个代理方法，并返回YES，使得外部的ScrollView和内部的Scrollview都能响应在其视图内的手势，未了不必新建一个UIScrollView的子类来实现这个方法，我们通过分类的方式来达到目的。并不是所有的UIScrollView都需要支持多识别器同时识别，所以我们在分类中新增一个属性：shouldRecognizeSimultaneouslyGesture，然后在gestureRecognizer:shouldRecognizeSimultaneouslyWithGestureRecognizer方法中直接返回这个属性。</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ 是否需要处理同时发生的手势，内嵌scrollview如需无缝滚动，请设置为YES；
+ */</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">assign</span><span class="p">)</span> <span class="n">BOOL</span> <span class="n">shouldRecognizeSimultaneouslyGesture</span><span class="p">;</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span> <span class="nf">gestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">gestureRecognizer</span> <span class="nf">shouldRecognizeSimultaneouslyWithGestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">otherGestureRecognizer</span><span class="p">{</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">shouldRecognizeSimultaneouslyGesture</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>我们把外部的ScrollView和内部的ScrollView的shouldRecognizeSimultaneouslyGesture均设置为YES就可以了。现在我们手指滑动时内外的ScrollView都会滚动，接下来我们只需要控制好达到临界点时的内外ScrollView的滚动就行了，依然再scrollViewDidScroll中实现这个控制：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">scrollViewDidScroll</span><span class="p">:(</span><span class="n">UIScrollView</span><span class="o">*</span><span class="p">)</span><span class="nv">scrollView</span><span class="p">{</span>
+    <span class="k">static</span> <span class="n">CGFloat</span> <span class="n">fixedContentOffsetY</span> <span class="o">=</span> <span class="mi">100</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">scrollView</span> <span class="o">==</span> <span class="n">_superScrollView</span><span class="p">){</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_superScrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">fixedContentOffsetY</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">_superScrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">fixedContentOffsetY</span><span class="p">);</span>
+            <span class="n">_fixOnTop</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span><span class="c1">//是否要固定到顶了
+</span>        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">_fixOnTop</span><span class="p">){</span>
+            <span class="n">_superScrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">fixedContentOffsetY</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">else</span><span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+            <span class="n">_fixOnTop</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">_fixOnTop</span><span class="p">){</span>
+            <span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">_childScrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>比之前的处理要简单不少，基本上如果需要支持这种无缝滚动的地方，我们设置好属性后在UIScrollView的代理didScrollView方法中写好控制就可以了。更进一步，didScroll中大部分的代码都是想相同，只是每个地方的设置的固定高度不同，所以我们可以将这些控制处理封装起来，外面调用时传入要控制的高度即可。</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ @param height 外部ScrollView滑动后需固定的高度
+*/</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">superScrollViewDidScrollWithFixedHeight</span><span class="p">:(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">height</span><span class="p">;</span>
+
+<span class="cm">/**
+ @param superScrollView 外部ScrollView
+ */</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">childScrollViewDidScrollInSuperScrollView</span><span class="p">:(</span><span class="n">UIScrollView</span><span class="o">*</span><span class="p">)</span><span class="nv">superScrollView</span><span class="p">;</span>
+</code></pre></div></div>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">superScrollViewDidScrollWithFixedHeight</span><span class="p">:(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">height</span><span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">height</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">fixedOnTop</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">fixedOnTop</span><span class="p">){</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">childScrollViewDidScrollInSuperScrollView</span><span class="p">:(</span><span class="n">UIScrollView</span><span class="o">*</span><span class="p">)</span><span class="nv">superScrollView</span><span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+        <span class="n">superScrollView</span><span class="p">.</span><span class="n">fixedOnTop</span> <span class="o">=</span> <span class="nb">NO</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">superScrollView</span><span class="p">.</span><span class="n">fixedOnTop</span><span class="p">){</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p></p>
+<h3 id="demo">Demo</h3>
+
+<p>基于这个方案，我将这些处理封装到一个UIScrollView的分类里，并写了一个Demo来演示如何使用。具体代码可见github地址：<a href="https://github.com/leung-c/ScrollTableView">https://github.com/leung-c/ScrollTableView</a></p>
+
+
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    
+                    <li class="next">
+                        <a href="/leung-c.github.io/blog/2017/06/10/TableviewAssemble/" data-toggle="tooltip" data-placement="top" title="一种灵活简单的tablview组装模式">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                <!-- Duoshuo Share start -->
+                <style>
+                    .ds-share{
+                        text-align: right;
+                    }
+                    
+                    @media only screen and (max-width: 700px) {
+                        .ds-share {
+
+                        }
+                    }
+                </style>
+
+                <div class="ds-share"
+                    data-thread-key="/blog/2016/12/15/ScrollTableView" data-title="ScrollView内嵌tableView无缝滚动的实现"
+                    data-images="http://localhost:4000/img/green.jpg"
+                    data-content="当UIScrollView内部嵌套了另一个ScrollView(TableView、CollectionView、WebView等)时，如何处理外部Sc... | Microdust:Azeril's blog"
+                    data-url="http://localhost:4000/blog/2016/12/15/ScrollTableView/">
+                    <div class="ds-share-inline">
+                      <ul  class="ds-share-icons-16">
+
+                        <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                        <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                        <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                        <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                      </ul>
+                      <div class="ds-share-icons-more">
+                      </div>
+                    </div>
+                <hr>
+                </div>
+                <!-- Duoshuo Share end-->
+
+
+                <!-- 多说评论框 start -->
+                <div class="comment">
+                    <div class="ds-thread" data-thread-key="/blog/2016/12/15/ScrollTableView" data-title="ScrollView内嵌tableView无缝滚动的实现" data-url="http://localhost:4000/blog/2016/12/15/ScrollTableView/"></div>
+                </div>
+                <!-- 多说评论框 end -->
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"cnfeat"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: ''
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <!-- kill the Facebook and Weibo -->
+                    <li>
+                        <a href="/leung-c.github.io/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    
+                    <!--
+                    
+                    -->
+
+                    <!--
+                    
+                    -->
+
+                    
+                    <!--
+                    
+                    -->
+
+                </ul>
+                <p class="copyright text-muted">
+                &copy; 2017 LiangChao ❖ Powered by Jekyll.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/leung-c.github.io/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/leung-c.github.io/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/leung-c.github.io/js/clean-blog.min.js "></script>
+
+
+
+<!-- Highlight.js -->
+<script>
+    async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js",function(){
+        hljs.initHighlightingOnLoad();
+    })
+</script>
+<link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+
+
+</body>
+
+</html>

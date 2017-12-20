@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+
+    <title>objective-c中的对象、类和元类 - Code Playground</title>
+
+    <link rel="canonical" href="http://localhost:4000/leung-c.github.io/blog/2017/07/02/MetaClass/">
+
+    <!-- Icons -->
+  <link rel="shortcut icon" href="img/favicon.ico">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/clean-blog.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+
+
+
+
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/leung-c.github.io/">Code Playground</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="/leung-c.github.io/">Home</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/about/">About</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/archive/">Archive</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/milestone/">milestone</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/tags/">Tags</a>
+                </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+
+    <!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/leung-c.github.io/img/green.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="Tags">
+                        
+                        <a class="tag" href="/Tags/#objective-c" title="objective-c">objective-c</a>
+                        
+                        <a class="tag" href="/Tags/#runtime" title="runtime">runtime</a>
+                        
+                    </div>
+                    <h1>objective-c中的对象、类和元类</h1>
+                    
+                    <span class="meta">Posted by LC on July 2, 2017</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 post-container">
+
+                <blockquote>
+  <p>本问粗浅探讨了OC中对象、类、元类的数据定义和他们之间的关系，梳理了相关概念</p>
+</blockquote>
+
+<h3 id="什么是oc中的对象类元类">什么是OC中的对象、类、元类</h3>
+
+<p>本文开始之前先看一下下面四个习题：</p>
+
+<h6 id="1下面代码的输出是什么">1.下面代码的输出是什么？</h6>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">BlackCat</span> <span class="p">:</span> <span class="nc">Cat</span>
+<span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">BlackCat</span>
+ <span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span> <span class="n">init</span><span class="p">{</span>
+    <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">self</span><span class="p">){</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@"%@"</span><span class="p">,</span><span class="n">NSStringFromClass</span><span class="p">([</span><span class="n">self</span> <span class="nf">class</span><span class="p">]));</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@"%@"</span><span class="p">,</span><span class="n">NSStringFromClass</span><span class="p">([</span><span class="n">super</span> <span class="nf">class</span><span class="p">]));</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<h6 id="2下面代码的输出是什么">2.下面代码的输出是什么？</h6>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">@interface</span> <span class="nc">Animal</span> <span class="p">:</span> <span class="nc">NSObject</span>
+ <span class="k">@property</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span><span class="o">*</span> <span class="n">name</span><span class="p">;</span>
+ <span class="k">@end</span>
+ <span class="k">@implementation</span> <span class="nc">Animal</span>
+ <span class="k">@end</span>
+  <span class="n">BOOL</span> <span class="n">res1</span> <span class="o">=</span> <span class="p">[(</span><span class="n">id</span><span class="p">)[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">]</span> <span class="nf">isKindOfClass</span><span class="p">:[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">]];</span>
+        <span class="n">BOOL</span> <span class="n">res2</span> <span class="o">=</span> <span class="p">[(</span><span class="n">id</span><span class="p">)[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">]</span> <span class="nf">isMemberOfClass</span><span class="p">:[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">]];</span>
+        <span class="n">BOOL</span> <span class="n">res3</span> <span class="o">=</span> <span class="p">[(</span><span class="n">id</span><span class="p">)[</span><span class="n">Animal</span> <span class="nf">class</span><span class="p">]</span> <span class="nf">isKindOfClass</span><span class="p">:[</span><span class="n">Animal</span> <span class="nf">class</span><span class="p">]];</span>
+        <span class="n">BOOL</span> <span class="n">res4</span> <span class="o">=</span> <span class="p">[(</span><span class="n">id</span><span class="p">)[</span><span class="n">Animal</span> <span class="nf">class</span><span class="p">]</span> <span class="nf">isMemberOfClass</span><span class="p">:[</span><span class="n">Animal</span> <span class="nf">class</span><span class="p">]];</span>
+        <span class="n">NSLog</span><span class="p">(</span><span class="s">@"%d %d %d %d"</span><span class="p">,</span> <span class="n">res1</span><span class="p">,</span> <span class="n">res2</span><span class="p">,</span> <span class="n">res3</span><span class="p">,</span> <span class="n">res4</span><span class="p">);</span>
+
+</code></pre></div></div>
+
+<h6 id="3下面代码会编译能否通过运行会闪退输出是什么">3.下面代码会编译能否通过？运行会闪退？输出是什么？</h6>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">NSObject</span> <span class="p">(</span><span class="nl">Animal</span><span class="p">)</span>
+<span class="k">+</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">eat</span><span class="p">;</span>
+<span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">NSObject</span> <span class="p">(</span><span class="nl">Animal</span><span class="p">)</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">eat</span>
+<span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@"IMP: -[NSObject(Animal) eat]"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="p">[</span><span class="n">NSObject</span> <span class="nf">eat</span><span class="p">];</span>
+<span class="p">[[</span><span class="n">NSObject</span> <span class="nf">new</span><span class="p">]</span> <span class="nf">eat</span><span class="p">];</span>
+</code></pre></div></div>
+<h6 id="4下面代码会编译能否通过运行会闪退输出是什么">4.下面代码会编译能否通过？运行会闪退？输出是什么？</h6>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">WhiteCat</span> <span class="p">:</span> <span class="nc">Cat</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">speak</span><span class="p">;</span>
+<span class="k">@end</span>
+<span class="k">@implementation</span> <span class="nc">WhiteCat</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span> <span class="n">init</span><span class="p">{</span>
+    <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">id</span> <span class="n">cls</span> <span class="o">=</span> <span class="p">[</span><span class="n">WhiteCat</span> <span class="nf">class</span><span class="p">];</span>
+        <span class="kt">void</span> <span class="o">*</span><span class="n">obj</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">cls</span><span class="p">;</span>
+        <span class="p">[(</span><span class="n">__bridge</span> <span class="n">id</span><span class="p">)</span><span class="n">obj</span> <span class="nf">speak</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">speak</span><span class="p">{</span>
+    <span class="n">NSLog</span><span class="p">(</span><span class="s">@"I'm a white cat"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h5 id="什么数据结构才能称之为对象">什么数据结构才能称之为对象？</h5>
+<p>在面向对象的语言体系中对象指的是类的实例，每个对象都有类。这是面向对象的基本概念，那么对象和类采用什么样的数据结构进行表示的呢？在Objective-C中，含有一个指针且该指针可以正确指向类的数据结构，都可以被视作为对象。
+在Objective-C中，对象最基本的定义是这样的：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">/// Represents an instance of a class.
+</span>
+<span class="k">struct</span> <span class="n">objc_object</span> <span class="p">{</span>
+    <span class="n">Class</span> <span class="n">isa</span>  <span class="n">OBJC_ISA_AVAILABILITY</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="c1">/// A pointer to an instance of a class.
+</span>
+<span class="k">typedef</span> <span class="k">struct</span> <span class="n">objc_object</span> <span class="o">*</span><span class="n">id</span><span class="p">;</span>
+</code></pre></div></div>
+<p>objc_object结构体表示某个类的一个实例(对象)，id表示objc_object类型的结构体指针。对象的类型是 isa指针决定的，它指向对象所属的类。其实字面意思就是“is a”。表示：“是一个什么什么”
+这意味着：任何带有以指针开始并指向其所属类的结构都可以被视作objc_object。可以看到，对象的表示非常简单，它本身只携带所属类的信息，这是因为对象有哪些属性、成员变量、哪些方法都可以通过isa指针从它的父类中找到，对象本身对应一块内存区域，通过alloc init创建的对象会在丢中开辟一块内存区域，里面保存着对象的属性值或值的引用，一个对象的内存布局大致为下图：</p>
+
+<p><img src="https://ws4.sinaimg.cn/large/006tKfTcgy1flrucylj2lj302104udft.jpg" alt="" /></p>
+
+<p>即：</p>
+
+<ul>
+  <li>ISA指针</li>
+  <li>根类的实例变量</li>
+  <li>倒数第二层父类的实例变量</li>
+  <li>…</li>
+  <li>父类的实例变量</li>
+  <li>类的实例变量</li>
+</ul>
+
+<p>一个对象在创建的时候分配内存时，会根据他的类型会计算出它需要的内存大小，这正是对象的alloc方法做的事情。根据前面的定义对象实际是一个结构体实例，因此该结构体的大小并不能动态变化。这也是为什么对象创建后增加成员变量。当然通过objc_setAssociatedObject 和 objc_getAssociatedObject方法可以变相地给对象增加成员变量，但由于实现机制不一样，所以并不是真正改变了对象的内存结构。</p>
+<blockquote>
+  <p>简单了解一下objc_setAssociatedObject的实现机制：每一个对象地址对应一个 ObjectAssociationMap 对象，而一个 ObjectAssociationMap 对象保存着这个对象的若干个关联记录。一条关联记录保存着一个被关联对象、内存管理策略等信息。</p>
+</blockquote>
+
+<p>当我们调用对象的方法时，实际是使用objc_msgSend函数进行消息发送，运行时库会追寻着对象的isa指针得到了对象所属的类。这个类包含了能应用于这个类的所有实例方法和指向超类的指针以便可以找到父类的实例方法。运行时库检查这个类和其超类的方法列表，找到一个匹配这条消息的方法。运行时库基于那个方法调用函数（IMP）。如果最终没有在其继承链中找到对应的方法就会进入消息转发流程。
+self和supper的决定了是编译时方法调用是使用objc_msgSend还是的objc_msgSendSuper，objc_msgSendSuper将直接从superClass中查找对应方法。self 是类的隐藏参数，指向当前调用方法的实例（对象或类对象）。而 super 是一个 Magic Keyword， 它本质是一个编译器标示符，和 self 是指向的同一个消息接受者。上面的例子不管调用[self class]还是[super class]，接受消息的对象都是当前 Animal ＊xxx 这个对象。而不同的是，super是告诉编译器，调用 class 这个方法时，要去父类的方法，而不是本类里的。当使用 self 调用方法时，会从当前类的方法列表中开始找，如果没有，就从父类中再找；而当使用 super 时，则从父类的方法列表中开始找。然后调用父类的这个方法。</p>
+
+<p>类的定义</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">objc_class</span> <span class="p">{</span>
+    <span class="n">Class</span> <span class="n">isa</span>  <span class="n">OBJC_ISA_AVAILABILITY</span><span class="p">;</span>
+
+    <span class="n">Class</span> <span class="n">super_class</span>   <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">name</span>    <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">version</span>        <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">info</span>           <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="n">instance_size</span>  <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">objc_ivar_list</span> <span class="o">*</span><span class="n">ivars</span> <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">objc_method_list</span> <span class="o">**</span><span class="n">methodLists</span> <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">objc_cache</span> <span class="o">*</span><span class="n">cache</span>  <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+    <span class="k">struct</span> <span class="n">objc_protocol_list</span> <span class="o">*</span><span class="n">protocols</span> <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+
+<span class="p">}</span> <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+
+</code></pre></div></div>
+<p>从定义可以看出：它实际上是一个指向objc_class结构体的指针。这个结构体的成员中我们看一下下面几个的含义：</p>
+
+<ol>
+  <li>isa：其实字面意思就是“is a”，这个字断类型是Class，表示是当前类一个什么类，需要注意的是在Objective-C中，所有的类自身也是一个对象，这个对象的Class里面也有一个isa指针，它指向metaClass(元类)，我们会在后面介绍它。</li>
+  <li>super_class：指向该类的父类</li>
+  <li>cache：缓存最近使用的方法。一个接收者对象接收到一个消息时，它会根据isa指针去查找能够响应这个消息的对象。在实际使用中，这个对象只有一部分方法是常用的，很多方法其实很少用或者根本用不上。这种情况下，如果每次消息来时，我们都是methodLists中遍历一遍，性能势必很差。这时，cache就派上用场了。在我们每次调用过一个方法后，这个方法就会被缓存到cache列表中，下次调用的时候runtime就会优先去cache中查找，如果cache没有，才去methodLists中查找方法。这样，对于那些经常用到的方法的调用，但提高了调用的效率。</li>
+  <li>ivars：用来表示instance variable(实例变量，跟某个对象关联，不能被静态方法使用，与之想对应的是class variable)，其声明如下，类中定义的属性其实本质就是成员变量，只是编译器会自动帮我们加上对应的getter和setter
+    <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="k">struct</span> <span class="n">objc_ivar</span> <span class="p">{</span>
+  <span class="kt">char</span> <span class="o">*</span><span class="n">ivar_name</span>   <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+  <span class="kt">char</span> <span class="o">*</span> <span class="n">ivar_type</span>  <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+  <span class="kt">int</span> <span class="n">ivar_offset</span>   <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+ <span class="cp">#ifdef __LP64__
+</span>  <span class="kt">int</span> <span class="n">space</span>  <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+ <span class="cp">#endif OBJC2_UNAVAILABLE;
+</span> <span class="p">}</span>
+</code></pre></div>    </div>
+    <blockquote>
+      <p>objc_ivar保存了对象的成员变量的名称、类型、地址偏移量的关键信息，</p>
+    </blockquote>
+  </li>
+  <li>methodLists：用来表示instance methods(实例方法，跟某个对象关联，不能被静态方法使用，与之想对应的是class method)，其声明如下：
+    <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">struct</span> <span class="n">objc_method</span> <span class="p">{</span>
+ <span class="n">SEL</span> <span class="n">method_name</span>    <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+ <span class="kt">char</span> <span class="o">*</span><span class="n">method_types</span>                                       <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+ <span class="n">IMP</span> <span class="n">method_imp</span>                                           <span class="n">OBJC2_UNAVAILABLE</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+    <p>这里实际维护的是方法名(SEL)和方法实现(IMP)的映射关系，也是为什么我们可以做到方法替换关键。
+从以上的定义可以看出对象的属性、方法的核心其实在于类，它决定对象具备哪些行为和能力。那么类方法和类静态变量是在哪里维护的呢？这涉及我们平时编码中几乎不会接触的一个概念：元类(MetaClass)，元(Meta)表示用于描述数据的数据，意味着元类是用于描述类的，类描述了对象有哪些属性特征和行为，同样元类描述了类有哪些属性特征和行为。
+类其实也是一种对象，我们称之为：类对象，所以和对象一样它有isa指针指向它所属的类（元类）。isa指针的类型是Class，说明元类和类用的是同一种数据结构，Objective-C的设计哲学中，一切都是对象，那么元类也可以看做为对象，这和万物皆对象的思想是一致的。这里我们可以思考一个问题：对象和类的isa指向它们所属的类，那元类的isa指针呢？按照Class的定义isa指向所属类，而元类本身也是Class，isa的指针不可能无限指向新的类。
+我们可以写代码验证一下：</p>
+    <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">NSObject</span><span class="o">*</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSObject</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
+     <span class="c1">//类
+</span>
+     <span class="n">Class</span> <span class="n">instanceClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span> <span class="nf">class</span><span class="p">];</span>
+     <span class="c1">//元类（类的isa指向）
+</span>
+     <span class="n">Class</span> <span class="n">metaOfInstanceClass</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">instanceClass</span><span class="p">);</span>
+     <span class="c1">//元类的类（元类的isa指向）
+</span>
+     <span class="n">Class</span> <span class="n">rootMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">metaOfInstanceClass</span><span class="p">);</span>
+</code></pre></div>    </div>
+    <p>在控制台调制可以看到以下信息： 
+<img src="https://ws4.sinaimg.cn/large/006tKfTcgy1flrysed41tj30dg03j751.jpg" alt="" /></p>
+  </li>
+</ol>
+
+<p>NSObject元类的isa指向了自己，这里我们需要怀疑的是NSObject是所有类的根类，它的元类是否具有特殊性，就像它没有父类一样，我们新建一个类试一试：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Animal</span><span class="o">*</span> <span class="n">animal</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Animal</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
+        <span class="c1">//类
+</span>
+<span class="n">Class</span> <span class="n">instanceClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">animal</span> <span class="nf">class</span><span class="p">];</span>
+        <span class="c1">//元类（类的isa指向）
+</span>
+<span class="n">Class</span> <span class="n">metaOfInstanceClass</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">instanceClass</span><span class="p">);</span>
+        <span class="c1">//元类的类（元类的isa指向）
+</span>
+<span class="n">Class</span> <span class="n">rootMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">metaOfInstanceClass</span><span class="p">);</span>
+        <span class="c1">//NSObject类
+</span>
+<span class="n">Class</span> <span class="n">rootObjClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">];</span>
+        <span class="c1">//NSObject元类
+</span>        
+<span class="n">Class</span> <span class="n">rootObjcMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">rootObjClass</span><span class="p">);</span>
+</code></pre></div></div>
+<p>控制台信息：
+<img src="https://ws2.sinaimg.cn/large/006tKfTcgy1flrytt8tauj30d903twfk.jpg" alt="" /></p>
+
+<p>从上图可以看出Animal元类的isa指向了NSObject的元类，就像Animal的supperClass指向NSObject一样。这也正是类方法可继承的原因，我们在上面解释了对象方法的查找过程，同样的类方法也是根据isa指针查找的。由此我们可以得出以下结论：</p>
+
+<ul>
+  <li>每个Class都有一个isa指针指向一个唯一的Meta Class</li>
+  <li>每一个Meta Class的isa指针都指向最上层的Meta Class（图中的NSObject的Meta Class）</li>
+  <li>最上层的Meta Class的isa指针指向自己，形成一个回路</li>
+</ul>
+
+<p>在上面的class的定义中，有一个super_class成员，它指向当前类的父类，那么MetaClass的super_class指向哪里呢？我新建一个子类看看：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// Cat继承自Animal类
+</span>
+        <span class="n">Cat</span><span class="o">*</span> <span class="n">animal</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Cat</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
+        <span class="c1">//类
+</span>
+        <span class="n">Class</span> <span class="n">class</span> <span class="o">=</span> <span class="p">[</span><span class="n">animal</span> <span class="nf">class</span><span class="p">];</span>
+        <span class="c1">//父类
+</span>
+        <span class="n">Class</span> <span class="n">supperOfClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">class</span> <span class="nf">superclass</span><span class="p">];</span>
+        <span class="c1">//元类（类的isa指向）
+</span>
+        <span class="n">Class</span> <span class="n">metaOfClass</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">class</span><span class="p">);</span>
+        <span class="c1">//元类的元类（元类的isa指向）
+</span>
+        <span class="n">Class</span> <span class="n">metaOfMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">metaOfClass</span><span class="p">);</span>
+        <span class="c1">//元类的父类
+</span>
+        <span class="n">Class</span> <span class="n">supperOfMetaCls</span> <span class="o">=</span> <span class="p">[</span><span class="n">metaOfClass</span> <span class="nf">superclass</span><span class="p">];</span>
+        <span class="c1">//NSObject类
+</span>
+        <span class="n">Class</span> <span class="n">rootObjClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">];</span>
+        <span class="c1">//NSObject的父类
+</span>
+        <span class="n">Class</span> <span class="n">supperOfRootCls</span> <span class="o">=</span> <span class="p">[</span><span class="n">rootObjClass</span> <span class="nf">superclass</span><span class="p">];</span>
+        <span class="c1">//NSObject元类
+</span>
+        <span class="n">Class</span> <span class="n">metaOfRootCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">rootObjClass</span><span class="p">);</span>
+        <span class="c1">//NSObject元类的父类
+</span>
+        <span class="n">Class</span> <span class="n">superOfRootObjMetaCls</span> <span class="o">=</span> <span class="p">[</span><span class="n">metaOfRootCls</span> <span class="nf">superclass</span><span class="p">];</span>
+</code></pre></div></div>
+<p>我们来看看各个变量的值：</p>
+
+<p><img src="https://ws1.sinaimg.cn/large/006tKfTcgy1flryza7kikj309904ogms.jpg" alt="" /></p>
+
+<p>可以看到：
+1.元类的父类指向了，父类的元类；
+2.NSObject的supperClass为nil
+3.NSobject的元类的父类指向了NSObject；</p>
+
+<p>结合继承关系和isa关系我们可以得出以下这张图：
+<img src="https://ws3.sinaimg.cn/large/006tKfTcgy1flrz2rlxunj309z0ag0tv.jpg" alt="" /></p>
+
+<p>总结一下我们前面得出的结论：</p>
+
+<ul>
+  <li>每个Class都有一个isa指针指向一个唯一的Meta Class</li>
+  <li>每一个Meta Class的isa指针都指向最上层的Meta Class（图中的NSObject的Meta Class）</li>
+  <li>最上层的Meta Class的isa指针指向自己，形成一个回路</li>
+  <li>每一个Meta Class的super class指针指向它原本Class的 Super Class的Meta Class。但是最上层的Meta Class的 Super Class指向NSObject Class本身</li>
+  <li>最上层的NSObject Class的super class指向 nil</li>
+</ul>
+
+<p>看到这里文章开头的四个问题你能分析出来吗？</p>
+
+<p>本文demo地址：<a href="https://github.com/leung-c/ObjectClassDemo.git">https://github.com/leung-c/ObjectClassDemo.git</a></p>
+
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/leung-c.github.io/blog/2017/06/10/TableviewAssemble/" data-toggle="tooltip" data-placement="top" title="一种灵活简单的tablview组装模式">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                </ul>
+
+                <!-- Duoshuo Share start -->
+                <style>
+                    .ds-share{
+                        text-align: right;
+                    }
+                    
+                    @media only screen and (max-width: 700px) {
+                        .ds-share {
+
+                        }
+                    }
+                </style>
+
+                <div class="ds-share"
+                    data-thread-key="/blog/2017/07/02/MetaClass" data-title="objective-c中的对象、类和元类"
+                    data-images="http://localhost:4000/img/green.jpg"
+                    data-content="
+  本问粗浅探讨了OC中对象、类、元类的数据定义和他们之间的关系，梳理了相关概念
+
+
+什么是OC中的对象、类、元类
+
+本文开始之前先看一下下面四个习题：... | Microdust:Azeril's blog"
+                    data-url="http://localhost:4000/blog/2017/07/02/MetaClass/">
+                    <div class="ds-share-inline">
+                      <ul  class="ds-share-icons-16">
+
+                        <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                        <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                        <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                        <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                      </ul>
+                      <div class="ds-share-icons-more">
+                      </div>
+                    </div>
+                <hr>
+                </div>
+                <!-- Duoshuo Share end-->
+
+
+                <!-- 多说评论框 start -->
+                <div class="comment">
+                    <div class="ds-thread" data-thread-key="/blog/2017/07/02/MetaClass" data-title="objective-c中的对象、类和元类" data-url="http://localhost:4000/blog/2017/07/02/MetaClass/"></div>
+                </div>
+                <!-- 多说评论框 end -->
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"cnfeat"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: ''
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <!-- kill the Facebook and Weibo -->
+                    <li>
+                        <a href="/leung-c.github.io/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    
+                    <!--
+                    
+                    -->
+
+                    <!--
+                    
+                    -->
+
+                    
+                    <!--
+                    
+                    -->
+
+                </ul>
+                <p class="copyright text-muted">
+                &copy; 2017 LiangChao ❖ Powered by Jekyll.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/leung-c.github.io/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/leung-c.github.io/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/leung-c.github.io/js/clean-blog.min.js "></script>
+
+
+
+<!-- Highlight.js -->
+<script>
+    async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js",function(){
+        hljs.initHighlightingOnLoad();
+    })
+</script>
+<link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+
+
+</body>
+
+</html>

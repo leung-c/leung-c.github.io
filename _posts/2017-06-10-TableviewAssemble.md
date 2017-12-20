@@ -3,7 +3,7 @@ layout: post
 title: 一种灵活简单的tablview组装模式
 date: 2017-06-10
 categories: blog
-tags: [objective-c,tableview，MVVM]
+tags: [objective-c,tableview,MVVM]
 description: MVVM模式下tableview数据和cell的组装
 ---
 
@@ -34,23 +34,25 @@ UITableView可以说是ios开发过程中用到频率最高的控件了，随便
 ```objc
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 ```
-上面的方法决定了cell展现效果、交互操作。相信大家对tablview代理方法的执行顺序，复用机制应该是是烂熟于心了。回到上面天猫或京东的商品详情页面，使用tableview的话我们需要做哪些事呢？
+上面的方法决定了cell展现效果、交互操作。相信大家对tablview代理方法的执行顺序，复用机制应该是是烂熟于心了。回到上面天猫或京东的商品详情页面，如果使用tableview的话我们需要做哪些事呢？
 在回答这个问题前我们先分析一下问题：
 1. cell的个数固定吗？
 1. 有几种类型的cell？
+1. cell都做好了，如何在vc中组装起来呢？
 1. 同类型的cell点击后的交互操作不一样如何处理
 
-显然cell个数不固定：如果商品不支持白条，不会有白条cell；如果商品可以领优惠券，需要显示优惠券cell；如果商品不参加促销活动，促狭互动cell也不显示... 具体有多少个cell是根据数据确定的。
+显然cell个数不固定：如果商品不支持白条，不会有白条cell；如果商品可以领优惠券，需要显示优惠券cell；如果商品不参加促销活动，促销活动cell也不显示... 具体有多少个cell是根据数据确定的。
 
 有几种cell这里比较直观，名称、价格、白条/已选规格/促销、地址、评价 5种cell，当然地址和白条cell可以作为一种，但是这样会造成单个cell内部元素控制复杂化。
 
 cell点击的其实应该是最后需要处理的，如果解决了cell的呈现，如何区分cell点击进行对应业务的处理也就迎刃而解了。
 
-最简单粗暴的方案是依据jindexPath确定对应位置的cell，但这方案毫无可读性、维护性可言。我们可以模拟一下，如果是这个方案那上面四个代理方法将会是什么样子
+如何组装cell？最简单粗暴的方案是依据indexPath确定对应位置的cell，但这方案毫无可读性、维护性可言。我们可以模拟一下，如果是这个方案那上面四个代理方法将会是什么样子
 ```objc
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if(section == 0){
-        int rowCount = 2;//名称＋价格
+        //名称＋价格 必有所以至少两个cell
+        int rowCount = 2;
         //支持白条
         if(canBlanknote){
             rowCount ++;
@@ -94,10 +96,13 @@ cell点击的其实应该是最后需要处理的，如果解决了cell的呈现
 ```objc
 @interface InfoCellViewModel : NSObject
 //标题
+
 @property (copy , nonatomic) NSString *title;
 //子标题
+
 @property (copy , nonatomic) NSString *description;
 //字体 颜色
+
 @property (strong,nonatomic) UIFont *titleFont;
 @property (strong,nonatomic) UIColor *titleColor;
 @end
@@ -105,6 +110,7 @@ cell点击的其实应该是最后需要处理的，如果解决了cell的呈现
 从类名可以看到这里实际是使用MVVM模式。对商品标题来说我们创建一个InfoCellViewModel实例维护好对应属性就行了，可是使用什么cell去显示？显示多高？显然我们加一个属性表示要用的cell就行了：
 ```objc
 //cell的复用id
+
 @property (copy , nonatomic) NSString *cellReuseId;
 @property (assign , nonatomic) CGFloat cellHeight;
 ```
@@ -119,19 +125,23 @@ title.cellHeight = 100;//这里也可以换成动态计算的高度
 按照这种方式，其它的数据我们也可以描述出来了，当然可能有的数据InfoCellViewModel是描述不了的，比如：购买数量（可编辑的），我们再创建一个可以描述这些数据的类就行了，创建ViewMode类时一定要注意：它的作用是用来描述数据显示的，不要牵扯具体的业务数据和业务逻辑。另外cell的高度、cell复用Id这些是基础信息是必有的，所以我们可以建一个基类BaseCellViewModel来定义这些信息，其它类继承即可。
 ```objc
 //商品标题cell
+
 InfoCellViewModel *title = [InfoCellViewModel new];
     ....
 title.cellReuseId = @"TitleInfoTableViewCell";
 
 //商品价格cell
+
 InfoCellViewModel *price = [InfoCellViewModel new];
     ....
 price.cellReuseId = @"PriceInfoTableViewCell";
 
 //数量输入cell
+
 InputTextCellViewModel *price = [InputTextCellViewModel new];
 price.placeHolder = @"请在这里输入您要购买的数量";
 //只能输入数字
+
 price.textKeyboardtype = UIKeyboardTypeNum;
     ....
 price.cellReuseId = @"TextInputTableViewCell";
@@ -143,10 +153,12 @@ NSMutableArray  *allSections = [NSMutableArray array];
 
 NSMutableArray *section1Cells = [NSMutableArray array];
 //商品标题cell
+
 InfoCellViewModel *title = [InfoCellViewModel new];
     ...
 [sectionCells addObject:title];
 //商品价格cell
+
 InfoCellViewModel *price = [InfoCellViewModel new];
     ...
 [sectionCells addObject:price];
@@ -213,9 +225,11 @@ InfoCellViewModel *coupon = [InfoCellViewModel new];
 }
 ```
 
-至此，我们基本上了解上述方案的整个实现过程，其主要思路是将数据和界面元素通过一个个描述对象进行关联，描述对象相当于一条纽带，上面携带数据和其要现实的信息，cell的操作通过这条纽带作用于数据，触发业务逻辑。数组的组装是在VC中进行的，因为当前页面要显示成什么样VC是最清楚的，也应该由它来决定。这方式也达到了前面所说的开发人员只需要组装好数据、写好cell就可以，cell的装载不需要介入。
+至此，我们基本上了解上述方案的整个实现过程，其主要思路是将数据和界面元素通过一个个描述对象进行关联，描述对象相当于一条纽带，上面携带数据和其要现实的信息，cell的操作通过这条纽带作用于数据，触发业务逻辑。数组的组装是在VC中进行的，因为当前页面要显示成什么样VC是最清楚的，也应该由它来决定。这方式也达到了前面所说目的：开发人员只需要组装好数据、写好cell就可以，cell的装载不需要介入。
 
 采用这种方式后续的维护和扩展都极其方便，无非就是新增cell、有可能需要新增ViewModel类、VC中组装对应ViewModel对象就行了，对于修改和移除也只需对应项的ViewModel，而且非常适合多人开发合作，有人写cell有人写ViewModel有人写VC，当然这本身就是MVVM的一个有点。
 
-回到前面最后的那张图，采用这种方式很容易就可以实现这个功能，以后如果要添加新的信息，只需要在数据源中添加就行了。但是，仔细想一下是这里是否和上面商品详情的实现有重复的代码呢？整个Cell的构造和点击触发其实是一样的；另外，如果需要显示SectionHeaderView或者SectionFooterView呢？CollectionView的数据组装是不是也可以这么做？基于这些问题我门对这种模式进行了抽象和扩展，形成一套简单的类库，基于这套模式，新的页面几乎不需要处理TableView／CollectionView的代理方法，而专注于页面数据的组装和业务逻辑。github地址:https://github.com/leung-c/LCListComponent.git
+回到前面最后的那张图，采用这种方式很容易就可以实现这个功能，以后如果要添加新的信息，只需要在数据源中添加就行了。但是，仔细想一下是这里是否和上面商品详情的实现有重复的代码呢？整个Cell的构造和点击触发其实是一样的；另外，如果需要显示SectionHeaderView或者SectionFooterView呢？CollectionView的数据组装是不是也可以这么做？基于这些问题我门对这种模式进行了抽象和扩展，形成一套简单的类库，基于这套模式，新的页面几乎不需要处理TableView／CollectionView的代理方法，而专注于页面数据的组装和业务逻辑。
+
+框架github地址：<https://github.com/leung-c/LCListComponent.git>
 

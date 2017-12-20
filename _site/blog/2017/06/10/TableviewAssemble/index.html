@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+
+    <title>一种灵活简单的tablview组装模式 - Code Playground</title>
+
+    <link rel="canonical" href="http://localhost:4000/leung-c.github.io/blog/2017/06/10/TableviewAssemble/">
+
+    <!-- Icons -->
+  <link rel="shortcut icon" href="img/favicon.ico">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/clean-blog.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+
+
+
+
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/leung-c.github.io/">Code Playground</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="/leung-c.github.io/">Home</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/about/">About</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/archive/">Archive</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/milestone/">milestone</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/tags/">Tags</a>
+                </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+
+    <!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/leung-c.github.io/img/green.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="Tags">
+                        
+                        <a class="tag" href="/Tags/#objective-c" title="objective-c">objective-c</a>
+                        
+                        <a class="tag" href="/Tags/#tableview" title="tableview">tableview</a>
+                        
+                        <a class="tag" href="/Tags/#MVVM" title="MVVM">MVVM</a>
+                        
+                    </div>
+                    <h1>一种灵活简单的tablview组装模式</h1>
+                    
+                    <span class="meta">Posted by LC on June 10, 2017</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 post-container">
+
+                <p>UITableView可以说是ios开发过程中用到频率最高的控件了，随便打开一个的APP，随便进入一个页面百分之八九十就是利用tableView实现的，下图就是京东和天猫最重要的商品详情页面和某APP简单的个人信息页。</p>
+
+<p><img src="https://ws1.sinaimg.cn/large/006tNc79gy1flxs1xt2drj30b40jr1kx.jpg" alt="" /><img src="https://ws1.sinaimg.cn/large/006tNc79gy1flxs1xfm3nj30b40jrgrt.jpg" alt="" />![]
+<img src="https://ws2.sinaimg.cn/large/006tNc79gy1flxs36skv1j30b40jrqk4.jpg" alt="" /></p>
+
+<p>复杂多变的页面体现了tableview极高的灵活性，甚至天猫、京东的首页都是可以用tableview去实现的。当然他们的首页应该是基于ScrollView，仿tableview复用机制，自己实现了一个组件，具体实现这里不作叙述，后面有机会再探讨。
+回想一下TableView的使用，核心就是下面几个代理方法：</p>
+<ul>
+  <li>cell的行数</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span> 
+</code></pre></div></div>
+<ul>
+  <li>指定位置cell的高度</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">heightForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
+</code></pre></div></div>
+<ul>
+  <li>返回指定位置要展示的cell</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
+</code></pre></div></div>
+<ul>
+  <li>选中指定位置的cell</li>
+</ul>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">didSelectRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
+</code></pre></div></div>
+<p>上面的方法决定了cell展现效果、交互操作。相信大家对tablview代理方法的执行顺序，复用机制应该是是烂熟于心了。回到上面天猫或京东的商品详情页面，如果使用tableview的话我们需要做哪些事呢？
+在回答这个问题前我们先分析一下问题：</p>
+<ol>
+  <li>cell的个数固定吗？</li>
+  <li>有几种类型的cell？</li>
+  <li>cell都做好了，如何在vc中组装起来呢？</li>
+  <li>同类型的cell点击后的交互操作不一样如何处理</li>
+</ol>
+
+<p>显然cell个数不固定：如果商品不支持白条，不会有白条cell；如果商品可以领优惠券，需要显示优惠券cell；如果商品不参加促销活动，促销活动cell也不显示… 具体有多少个cell是根据数据确定的。</p>
+
+<p>有几种cell这里比较直观，名称、价格、白条/已选规格/促销、地址、评价 5种cell，当然地址和白条cell可以作为一种，但是这样会造成单个cell内部元素控制复杂化。</p>
+
+<p>cell点击的其实应该是最后需要处理的，如果解决了cell的呈现，如何区分cell点击进行对应业务的处理也就迎刃而解了。</p>
+
+<p>如何组装cell？最简单粗暴的方案是依据indexPath确定对应位置的cell，但这方案毫无可读性、维护性可言。我们可以模拟一下，如果是这个方案那上面四个代理方法将会是什么样子</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">section</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="c1">//名称＋价格 必有所以至少两个cell
+</span>        <span class="kt">int</span> <span class="n">rowCount</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="c1">//支持白条
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">canBlanknote</span><span class="p">){</span>
+            <span class="n">rowCount</span> <span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//有促销
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">hasPromotion</span><span class="p">){</span>
+            <span class="n">rowCount</span> <span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">//有优惠券
+</span>        <span class="k">if</span><span class="p">(</span><span class="n">hasCounpon</span><span class="p">){</span>
+            <span class="n">rowCount</span> <span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="n">elseif</span> <span class="p">(</span><span class="n">section</span> <span class="o">==</span> <span class="mi">1</span><span class="p">){</span>
+        <span class="p">......</span>
+    <span class="p">}</span>
+    <span class="p">.......</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">heightForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">indexPath</span><span class="p">.</span><span class="n">section</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">indexPath</span><span class="p">.</span><span class="n">row</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
+            <span class="k">return</span> <span class="mi">100</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">indexPath</span> <span class="o">==</span> <span class="mi">1</span><span class="p">){</span>
+            <span class="k">return</span> <span class="mi">50</span><span class="p">;</span>
+        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+            <span class="p">...</span>
+        <span class="p">}</span>
+        <span class="p">....</span>
+    <span class="p">}</span>
+    <span class="p">....</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>模拟代码写到这里我就不想也不必写下去了，我只是简单的模拟了一下，真个过程是非常枯燥繁琐的，每添加一行if else都需要对前面的判断分支进行逻辑梳理，看看indexpath数的是否正确，，而且整个过程需要重复四遍，因为你需要实现四个代理方法。我相信很多人在从业经历中或多或少看到这养糟糕的代码，可能一个简单的页面最终实现后的代码行数奔1000＋了。最痛苦的是好不容易显示正确功能完成，出现bug后调试过程绝对让人崩溃，更别说日后产品要求调整相关信息的显示顺序了，这又会让人脱一层皮。</p>
+
+<p>那么有没有一种比较轻松明了、可维护、可扩展的的方式呢？你应该也有自己的方案，这里说一下我平时采用的方式，并且将这种方式可以扩展到CollectionView，最终我们初步形成了一套简单的框架，让开发人员只需要关注业务数据和业务处理，整个个cell装载的过程是透明的。在这个方式下，开发只需要做两件事：根据业务维护数据、写cell。下面我们看一下具体是什么样的方式。</p>
+
+<p>页面的呈现是依赖于数据的，也就是说有A数据那就有需要显示A的cell，没有A数据也就无需A cell了，我们先不去关注这个A到底需要在第几个section的第几个位置，假如我们先把cell写好了，后端同学的接口也提供了，现在我们要把数据通过cell呈现到界面上，仔细想一下我们还缺什么呢？</p>
+
+<p>我们还缺少数据和界面的描述。以商品标题为例：“Apple／苹果 iPhone8…” 这个是数据，这个数据展现时要黑色18号字体、50的行高等等，现在我们需要建立对数据要如何呈现的描述，创建一个类完成这个工作：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">InfoCellViewModel</span> <span class="p">:</span> <span class="nc">NSObject</span>
+<span class="c1">//标题
+</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">copy</span> <span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">title</span><span class="p">;</span>
+<span class="c1">//子标题
+</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">copy</span> <span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">description</span><span class="p">;</span>
+<span class="c1">//字体 颜色
+</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">UIFont</span> <span class="o">*</span><span class="n">titleFont</span><span class="p">;</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">UIColor</span> <span class="o">*</span><span class="n">titleColor</span><span class="p">;</span>
+<span class="k">@end</span>
+</code></pre></div></div>
+<p>从类名可以看到这里实际是使用MVVM模式。对商品标题来说我们创建一个InfoCellViewModel实例维护好对应属性就行了，可是使用什么cell去显示？显示多高？显然我们加一个属性表示要用的cell就行了：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//cell的复用id
+</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">copy</span> <span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">cellReuseId</span><span class="p">;</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">assign</span> <span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">CGFloat</span> <span class="n">cellHeight</span><span class="p">;</span>
+</code></pre></div></div>
+<p>现在数据显示所需要的信息基本都具备了，对于要显示商品标题我们可以这样描述它了：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">title</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+<span class="n">title</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="s">@"iphone8"</span><span class="p">;</span>
+<span class="n">title</span><span class="p">.</span><span class="n">description</span> <span class="o">=</span> <span class="s">@"不要钱"</span><span class="p">;</span>
+<span class="n">title</span><span class="p">.</span><span class="n">cellReuseId</span> <span class="o">=</span> <span class="s">@"TitleInfoTableViewCell"</span><span class="p">;</span>
+<span class="n">title</span><span class="p">.</span><span class="n">cellHeight</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span><span class="c1">//这里也可以换成动态计算的高度
+</span></code></pre></div></div>
+<p>按照这种方式，其它的数据我们也可以描述出来了，当然可能有的数据InfoCellViewModel是描述不了的，比如：购买数量（可编辑的），我们再创建一个可以描述这些数据的类就行了，创建ViewMode类时一定要注意：它的作用是用来描述数据显示的，不要牵扯具体的业务数据和业务逻辑。另外cell的高度、cell复用Id这些是基础信息是必有的，所以我们可以建一个基类BaseCellViewModel来定义这些信息，其它类继承即可。</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//商品标题cell
+</span>
+<span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">title</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+    <span class="p">....</span>
+<span class="n">title</span><span class="p">.</span><span class="n">cellReuseId</span> <span class="o">=</span> <span class="s">@"TitleInfoTableViewCell"</span><span class="p">;</span>
+
+<span class="c1">//商品价格cell
+</span>
+<span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">price</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+    <span class="p">....</span>
+<span class="n">price</span><span class="p">.</span><span class="n">cellReuseId</span> <span class="o">=</span> <span class="s">@"PriceInfoTableViewCell"</span><span class="p">;</span>
+
+<span class="c1">//数量输入cell
+</span>
+<span class="n">InputTextCellViewModel</span> <span class="o">*</span><span class="n">price</span> <span class="o">=</span> <span class="p">[</span><span class="n">InputTextCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+<span class="n">price</span><span class="p">.</span><span class="n">placeHolder</span> <span class="o">=</span> <span class="s">@"请在这里输入您要购买的数量"</span><span class="p">;</span>
+<span class="c1">//只能输入数字
+</span>
+<span class="n">price</span><span class="p">.</span><span class="n">textKeyboardtype</span> <span class="o">=</span> <span class="n">UIKeyboardTypeNum</span><span class="p">;</span>
+    <span class="p">....</span>
+<span class="n">price</span><span class="p">.</span><span class="n">cellReuseId</span> <span class="o">=</span> <span class="s">@"TextInputTableViewCell"</span><span class="p">;</span>
+</code></pre></div></div>
+<p>到这里我们已经完成了对需要显示数据的描述，现在我们要做的就是将这个描述数据和tableView的代理方法联系起来，并通过tableView的代理方法帮我们决定什么位置显示什么cell。那么，我们需要做的就是将这些描述对象维护到数组就行了，
+前面我们说过：有数据A就显示A的cell，我们维护描述对象时就可以做到这一点了：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">NSMutableArray</span>  <span class="o">*</span><span class="n">al</span><span class="err"></span><span class="n">lSections</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
+
+<span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">section1Cells</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
+<span class="c1">//商品标题cell
+</span>
+<span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">title</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+    <span class="p">...</span>
+<span class="p">[</span><span class="n">sectionCells</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">title</span><span class="p">];</span>
+<span class="c1">//商品价格cell
+</span>
+<span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">price</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+    <span class="p">...</span>
+<span class="p">[</span><span class="n">sectionCells</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">price</span><span class="p">];</span>
+<span class="k">if</span><span class="p">(</span><span class="n">hasCounpon</span><span class="p">){</span>
+    <span class="c1">//优惠信息cell
+</span>    <span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">coupon</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+        <span class="p">...</span>
+    <span class="p">[</span><span class="n">sectionCells</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">coupon</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="k">if</span><span class="p">(</span><span class="n">hasPromotion</span><span class="p">){</span>
+    <span class="c1">//促销信息cell
+</span>    <span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">promotioin</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+        <span class="p">...</span>
+    <span class="p">[</span><span class="n">sectionCells</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">promotioin</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="c1">//第二个section的数据
+</span><span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">section2Cells</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
+<span class="c1">//数量输入cell
+</span><span class="n">InputTextCellViewModel</span> <span class="o">*</span><span class="n">price</span> <span class="o">=</span> <span class="p">[</span><span class="n">InputTextCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+    <span class="p">....</span>
+<span class="p">[</span><span class="n">section2Cells</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">promotioin</span><span class="p">];</span>
+
+<span class="n">al</span><span class="err"></span><span class="n">lSections</span> <span class="o">=</span> <span class="p">@[</span><span class="n">section1Cells</span><span class="p">,</span><span class="n">section2Cells</span><span class="p">,.....];</span>
+</code></pre></div></div>
+<p>上面的代码就是整个tableview要现实的数据的描述了，对于tableView的代理方法里面的实现就非常简单了，不需要任何硬编码：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">numberOfRowsInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span> <span class="p">{</span>
+    <span class="n">NSMutableArray</span> <span class="err">＊</span><span class="n">cells</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">al</span><span class="err"></span><span class="n">lSections</span><span class="p">[</span><span class="nf">section</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">cells</span><span class="p">.</span><span class="n">count</span>
+<span class="p">}</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">heightForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span> <span class="p">{</span>
+    <span class="n">BaseCellViewModel</span> <span class="o">*</span><span class="n">cellVM</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">al</span><span class="err"></span><span class="n">lSections</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">section</span><span class="p">][</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">row</span><span class="p">];</span>
+    <span class="k">return</span> <span class="n">cellVm</span><span class="p">.</span><span class="n">cellHeight</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span> <span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span> <span class="p">{</span>
+    <span class="n">BaseCellViewModel</span> <span class="o">*</span><span class="n">cellVM</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">al</span><span class="err"></span><span class="n">lSections</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">section</span><span class="p">][</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">row</span><span class="p">];</span>
+    <span class="n">UITableViewCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">tableView</span> <span class="nf">dequeueReusableCellWithIdentifier</span><span class="p">:</span><span class="n">cellVM</span><span class="p">.</span><span class="n">reuseId</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">cell</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">Class</span> <span class="n">cellClass</span> <span class="o">=</span> <span class="n">cellVM</span><span class="p">.</span><span class="n">viewClass</span><span class="p">?:</span> <span class="n">NSClassFromString</span><span class="p">(</span><span class="n">cellVM</span><span class="p">.</span><span class="n">reuseId</span><span class="p">);</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="p">[[</span><span class="n">cellClass</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithStyle</span><span class="p">:</span><span class="n">UITableViewCellStyleDefault</span> <span class="nf">reuseIdentifier</span><span class="p">:</span><span class="n">cellVM</span><span class="p">.</span><span class="n">reuseId</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">cell</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<p>那么cell的点击我们怎么去处理呢？如同处理使用什么cell来现实的问题一样，我们在描述对象上创建block回调来解决：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typedef</span> <span class="n">id</span><span class="p">(</span><span class="o">^</span><span class="n">CallBackBlock</span><span class="p">)();</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">CallBackBlock</span> <span class="n">callBack</span><span class="p">;</span>
+</code></pre></div></div>
+<p>于是，当某些数据需要处理点击时，我们在维护它的描述对象时写好回调就行了：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">InfoCellViewModel</span> <span class="o">*</span><span class="n">coupon</span> <span class="o">=</span> <span class="p">[</span><span class="n">InfoCellViewModel</span> <span class="nf">new</span><span class="p">];</span>
+        <span class="p">...</span>
+<span class="p">[</span><span class="n">counpon</span> <span class="nf">setCallBack</span><span class="p">:</span><span class="n">id</span><span class="p">(</span><span class="o">^</span><span class="p">){</span>
+    <span class="c1">//弹出优惠券信息选择框
+</span><span class="p">}];</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">didSelectRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">tableView</span> <span class="nf">deselectRowAtIndexPath</span><span class="p">:</span><span class="n">indexPath</span> <span class="nf">animated</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
+    <span class="n">BaseCellViewModel</span> <span class="o">*</span><span class="n">cellVM</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">allSection</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">section</span><span class="p">][</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">row</span><span class="p">];</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">cellVM</span><span class="p">.</span><span class="n">callBack</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">cellVM</span><span class="p">.</span><span class="n">callBack</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>至此，我们基本上了解上述方案的整个实现过程，其主要思路是将数据和界面元素通过一个个描述对象进行关联，描述对象相当于一条纽带，上面携带数据和其要现实的信息，cell的操作通过这条纽带作用于数据，触发业务逻辑。数组的组装是在VC中进行的，因为当前页面要显示成什么样VC是最清楚的，也应该由它来决定。这方式也达到了前面所说目的：开发人员只需要组装好数据、写好cell就可以，cell的装载不需要介入。</p>
+
+<p>采用这种方式后续的维护和扩展都极其方便，无非就是新增cell、有可能需要新增ViewModel类、VC中组装对应ViewModel对象就行了，对于修改和移除也只需对应项的ViewModel，而且非常适合多人开发合作，有人写cell有人写ViewModel有人写VC，当然这本身就是MVVM的一个有点。</p>
+
+<p>回到前面最后的那张图，采用这种方式很容易就可以实现这个功能，以后如果要添加新的信息，只需要在数据源中添加就行了。但是，仔细想一下是这里是否和上面商品详情的实现有重复的代码呢？整个Cell的构造和点击触发其实是一样的；另外，如果需要显示SectionHeaderView或者SectionFooterView呢？CollectionView的数据组装是不是也可以这么做？基于这些问题我门对这种模式进行了抽象和扩展，形成一套简单的类库，基于这套模式，新的页面几乎不需要处理TableView／CollectionView的代理方法，而专注于页面数据的组装和业务逻辑。</p>
+
+<p>框架github地址：<a href="https://github.com/leung-c/LCListComponent.git">https://github.com/leung-c/LCListComponent.git</a></p>
+
+
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/leung-c.github.io/blog/2016/12/15/ScrollTableView/" data-toggle="tooltip" data-placement="top" title="ScrollView内嵌tableView无缝滚动的实现">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/leung-c.github.io/blog/2017/07/02/MetaClass/" data-toggle="tooltip" data-placement="top" title="objective-c中的对象、类和元类">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                <!-- Duoshuo Share start -->
+                <style>
+                    .ds-share{
+                        text-align: right;
+                    }
+                    
+                    @media only screen and (max-width: 700px) {
+                        .ds-share {
+
+                        }
+                    }
+                </style>
+
+                <div class="ds-share"
+                    data-thread-key="/blog/2017/06/10/TableviewAssemble" data-title="一种灵活简单的tablview组装模式"
+                    data-images="http://localhost:4000/img/green.jpg"
+                    data-content="UITableView可以说是ios开发过程中用到频率最高的控件了，随便打开一个的APP，随便进入一个页面百分之八九十就是利用tableView实现的，下... | Microdust:Azeril's blog"
+                    data-url="http://localhost:4000/blog/2017/06/10/TableviewAssemble/">
+                    <div class="ds-share-inline">
+                      <ul  class="ds-share-icons-16">
+
+                        <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                        <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                        <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                        <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                      </ul>
+                      <div class="ds-share-icons-more">
+                      </div>
+                    </div>
+                <hr>
+                </div>
+                <!-- Duoshuo Share end-->
+
+
+                <!-- 多说评论框 start -->
+                <div class="comment">
+                    <div class="ds-thread" data-thread-key="/blog/2017/06/10/TableviewAssemble" data-title="一种灵活简单的tablview组装模式" data-url="http://localhost:4000/blog/2017/06/10/TableviewAssemble/"></div>
+                </div>
+                <!-- 多说评论框 end -->
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"cnfeat"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: ''
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <!-- kill the Facebook and Weibo -->
+                    <li>
+                        <a href="/leung-c.github.io/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    
+                    <!--
+                    
+                    -->
+
+                    <!--
+                    
+                    -->
+
+                    
+                    <!--
+                    
+                    -->
+
+                </ul>
+                <p class="copyright text-muted">
+                &copy; 2017 LiangChao ❖ Powered by Jekyll.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/leung-c.github.io/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/leung-c.github.io/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/leung-c.github.io/js/clean-blog.min.js "></script>
+
+
+
+<!-- Highlight.js -->
+<script>
+    async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js",function(){
+        hljs.initHighlightingOnLoad();
+    })
+</script>
+<link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+
+
+</body>
+
+</html>

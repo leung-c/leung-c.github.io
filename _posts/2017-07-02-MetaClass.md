@@ -80,10 +80,12 @@ description: 什么是OC中的对象、类、元类，它们被如何表示，�
 在Objective-C中，对象最基本的定义是这样的：
 ```objc
 /// Represents an instance of a class.
+
 struct objc_object {
     Class isa  OBJC_ISA_AVAILABILITY;
 };
 /// A pointer to an instance of a class.
+
 typedef struct objc_object *id;
 ```
 objc_object结构体表示某个类的一个实例(对象)，id表示objc_object类型的结构体指针。对象的类型是 isa指针决定的，它指向对象所属的类。其实字面意思就是“is a”。表示：“是一个什么什么”
@@ -156,10 +158,13 @@ struct objc_method {
 ```objc
    NSObject* obj = [[NSObject alloc]init];
         //类
+
         Class instanceClass = [obj class];
         //元类（类的isa指向）
+
         Class metaOfInstanceClass = object_getClass(instanceClass);
         //元类的类（元类的isa指向）
+
         Class rootMetaCls = object_getClass(metaOfInstanceClass);
 ```
 在控制台调制可以看到以下信息： 
@@ -169,14 +174,19 @@ NSObject元类的isa指向了自己，这里我们需要怀疑的是NSObject是�
 ```objc
 Animal* animal = [[Animal alloc]init];
         //类
+
 Class instanceClass = [animal class];
         //元类（类的isa指向）
+
 Class metaOfInstanceClass = object_getClass(instanceClass);
         //元类的类（元类的isa指向）
+
 Class rootMetaCls = object_getClass(metaOfInstanceClass);
         //NSObject类
+
 Class rootObjClass = [NSObject class];
         //NSObject元类
+        
 Class rootObjcMetaCls = object_getClass(rootObjClass);
 ```
 控制台信息：
@@ -191,24 +201,34 @@ Class rootObjcMetaCls = object_getClass(rootObjClass);
 在上面的class的定义中，有一个super_class成员，它指向当前类的父类，那么MetaClass的super_class指向哪里呢？我新建一个子类看看：
 ```objc
  // Cat继承自Animal类
+
         Cat* animal = [[Cat alloc]init];
         //类
+
         Class class = [animal class];
         //父类
+
         Class supperOfClass = [class superclass];
         //元类（类的isa指向）
+
         Class metaOfClass = object_getClass(class);
         //元类的元类（元类的isa指向）
+
         Class metaOfMetaCls = object_getClass(metaOfClass);
         //元类的父类
+
         Class supperOfMetaCls = [metaOfClass superclass];
         //NSObject类
+
         Class rootObjClass = [NSObject class];
         //NSObject的父类
+
         Class supperOfRootCls = [rootObjClass superclass];
         //NSObject元类
+
         Class metaOfRootCls = object_getClass(rootObjClass);
         //NSObject元类的父类
+
         Class superOfRootObjMetaCls = [metaOfRootCls superclass];
 ```
 我们来看看各个变量的值：
@@ -232,3 +252,5 @@ Class rootObjcMetaCls = object_getClass(rootObjClass);
 * 最上层的NSObject Class的super class指向 nil
 
 看到这里文章开头的四个问题你能分析出来吗？
+
+本文demo地址：<https://github.com/leung-c/ObjectClassDemo.git>
