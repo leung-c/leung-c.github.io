@@ -5,8 +5,8 @@
     <description></description>
     <link>http://localhost:4000/leung-c.github.io/</link>
     <atom:link href="http://localhost:4000/leung-c.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 16 Jan 2018 14:32:48 +0800</pubDate>
-    <lastBuildDate>Tue, 16 Jan 2018 14:32:48 +0800</lastBuildDate>
+    <pubDate>Tue, 16 Jan 2018 15:14:26 +0800</pubDate>
+    <lastBuildDate>Tue, 16 Jan 2018 15:14:26 +0800</lastBuildDate>
     <generator>Jekyll v3.6.2</generator>
     
       <item>
@@ -521,7 +521,7 @@ self和supper的决定了是编译时方法调用是使用objc_msgSend还是的o
         <title>由MVC框架下常见的代码问题想到的</title>
         <description>&lt;p&gt;在我们团队的开发工作中有这样的约定：尽可能保证view的纯展示、交互职能，以达到view最大限度的复用。可能你会问：难道不是本来就该这么做么？确实，理论应该是这样的。苹果CocoaTouch框架本身的设计就是很好的实现典范。然而我见过的项目中，有不少代码完全违背苹果MVC模式规范的。&lt;/p&gt;
 
-&lt;p&gt;&lt;img src=&quot;https://images2015.cnblogs.com/blog/993906/201608/993906-20160814212709203-2004832279.png&quot; alt=&quot;&quot; /&gt;
+&lt;p&gt;&lt;img src=&quot;https://ws4.sinaimg.cn/large/006tNc79gy1fnigwlo6tvj30xe0iaqmi.jpg&quot; alt=&quot;&quot; /&gt;
 上图是苹果官方的示意图，其中很重要却被有意或无意忽视的一点：View和Model彼此是不能通信相互依赖的。&lt;/p&gt;
 
 &lt;p&gt;这样的代码你应该也看过不少：&lt;/p&gt;
