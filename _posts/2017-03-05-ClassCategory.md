@@ -5,6 +5,7 @@ date: 2017-03-05
 categories: blog
 tags: [objective-c,MVC,MVVM]
 description: MVC和MVVM到底该如何使用？
+---
 
 在我们团队的开发工作中有这样的约定：尽可能保证view的纯展示、交互职能，以达到view最大限度的复用。可能你会问：难道不是本来就该这么做么？确实，理论应该是这样的。苹果CocoaTouch框架本身的设计就是很好的实现典范。然而我见过的项目中，有不少代码完全违背苹果MVC模式规范的。
 

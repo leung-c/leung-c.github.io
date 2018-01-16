@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+
+    <title>由MVC框架下常见的代码问题想到的 - Code Playground</title>
+
+    <link rel="canonical" href="http://localhost:4000/leung-c.github.io/blog/2017/03/05/ClassCategory/">
+
+    <!-- Icons -->
+  <link rel="shortcut icon" href="img/favicon.ico">
+
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/clean-blog.css">
+
+    <!-- Pygments Github CSS -->
+    <link rel="stylesheet" href="/leung-c.github.io/css/syntax.css">
+
+    <!-- Custom Fonts -->
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+</head>
+
+
+
+
+
+
+<body ontouchstart="">
+
+    <!-- Navigation -->
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/leung-c.github.io/">Code Playground</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="/leung-c.github.io/">Home</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/about/">About</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/archive/">Archive</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/milestone/">milestone</a>
+                </li>
+                
+                <li>
+                    <a href="/leung-c.github.io/tags/">Tags</a>
+                </li>
+                
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+
+    <!-- Post Header -->
+<style type="text/css">
+    header.intro-header{
+        background-image: url('/leung-c.github.io/img/green.jpg')
+    }
+</style>
+<header class="intro-header" >
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="Tags">
+                        
+                        <a class="tag" href="/Tags/#objective-c" title="objective-c">objective-c</a>
+                        
+                        <a class="tag" href="/Tags/#MVC" title="MVC">MVC</a>
+                        
+                        <a class="tag" href="/Tags/#MVVM" title="MVVM">MVVM</a>
+                        
+                    </div>
+                    <h1>由MVC框架下常见的代码问题想到的</h1>
+                    
+                    <span class="meta">Posted by LC on March 5, 2017</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 post-container">
+
+                <p>在我们团队的开发工作中有这样的约定：尽可能保证view的纯展示、交互职能，以达到view最大限度的复用。可能你会问：难道不是本来就该这么做么？确实，理论应该是这样的。苹果CocoaTouch框架本身的设计就是很好的实现典范。然而我见过的项目中，有不少代码完全违背苹果MVC模式规范的。</p>
+
+<p><img src="https://images2015.cnblogs.com/blog/993906/201608/993906-20160814212709203-2004832279.png" alt="" />
+上图是苹果官方的示意图，其中很重要却被有意或无意忽视的一点：View和Model彼此是不能通信相互依赖的。</p>
+
+<p>这样的代码你应该也看过不少：</p>
+<pre><code class="language-objcv">UserInfoCell *cell = [UserInfoCell cellForTableview:tableview atIndex:indexPath];
+[cell setUser:user];
+</code></pre>
+<p>model被view直接引用并持有，在view的内部将model的属性和view上的控件对应起来。这种情况非常多以至于成了一种“模式”了，多数人认为，大家都这么写那应该没什么问题，甚至认为这是封装性的一种体现（之前在面试时问到这种代码的问题时，不少人这样回答我）。在我个人看来宁可不要这种所谓的“封装”。这种写法可能还有一种目的：避免把MVC变成“Massive View Controller”，毕竟按照规范的写法上面的代码可能是这个样子：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">User</span> <span class="o">*</span><span class="n">user</span>  <span class="o">=</span> <span class="n">users</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">row</span><span class="p">];</span>
+<span class="n">UserInfoCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">UserInfoCell</span> <span class="nf">cellForTableview</span><span class="p">:</span><span class="n">tableview</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">indexPath</span><span class="p">];</span>
+<span class="n">cell</span><span class="p">.</span><span class="n">imageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">icon</span><span class="p">;</span>
+<span class="n">cell</span><span class="p">.</span><span class="n">titleLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+<span class="n">cell</span><span class="p">.</span><span class="n">subTitle</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">desc</span><span class="p">;</span>
+<span class="n">cell</span><span class="p">.</span><span class="n">contentLabel</span><span class="p">.</span><span class="n">text</span>  <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">detail</span><span class="p">;</span>
+<span class="p">...</span>
+</code></pre></div></div>
+<p>这确实是令人头疼的问题，viewcontroller中包含各种这个样的代码：获取数据、视图组织、视图元素赋值、监听model属性的更改….但是我们有很多中解决方法，却偏偏需选择了最简单直接粗暴的方法：将model丢给view。</p>
+
+<h3 id="mvvm">MVVM</h3>
+
+<p>事实上MVVM就是是不错的选择，它引入了viewmodel层用于UI层的数据处理。在使用MVVM的时候通常会配合使用数据绑定，它使得model数据变更时viewmodel会接收到通知，viewmodel变更是view会收到通知，发过来也是一样（双向绑定），ios中可以通过Notification或KVO或ReactiveCocoa来实现，当然数据绑定并不是使用MVVM的必要条件，即使我们使用的是MVC我们同样可以借鉴MVVM的优点，形成 MVVM Without DataBinding。</p>
+
+<p>MVVM（Model View ViewModel）从名字就可以看出淡化了Controller的作用，在Controller我们需要做的是：构造View、组织ViewModel数据、将ViewModel传递给View。在View中我们就可以像之前使用Model一样去使用ViewModel。ViewModel不应该是对Model的又一层封装，对ViewModel的设计应该考虑需求方的使用，这个需求方就是View。针对上面的代码它的MVVM Without DataBinding版本可能是这样的：</p>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@implementation</span> <span class="nc">UserCellViewModel</span>
+ <span class="k">+</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="nf">userCellViewModelWithUser</span><span class="p">:(</span><span class="n">User</span><span class="o">*</span><span class="p">)</span><span class="nv">user</span><span class="p">{</span>
+     <span class="n">UserCellViewModel</span> <span class="o">*</span><span class="n">vm</span> <span class="o">=</span> <span class="p">[</span><span class="n">UserCellViewModel</span> <span class="nf">alloc</span><span class="p">]</span><span class="n">init</span><span class="p">];</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">icon</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">icon</span><span class="p">;</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">subTitle</span>  <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">desc</span><span class="p">;</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">detail</span><span class="p">;</span>
+     <span class="k">return</span> <span class="n">vm</span><span class="p">;</span>
+ <span class="p">}</span>
+ <span class="k">+</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">fetchUsers</span><span class="p">:(</span><span class="kt">void</span> <span class="o">^</span><span class="p">(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">UserCellViewModel</span><span class="o">*&gt;</span> <span class="o">*</span><span class="n">users</span><span class="p">,</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">))</span><span class="nv">complete</span><span class="p">{</span>
+     <span class="n">NSMutableArray</span><span class="o">*</span> <span class="n">users</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
+     <span class="c1">//获取model数据，构造viewmodel
+</span>     <span class="p">....</span>
+     <span class="p">[</span><span class="n">users</span> <span class="nf">addObject</span><span class="p">:[</span><span class="n">UserCellViewModel</span> <span class="nf">userCellViewModelWithUser</span><span class="p">:</span><span class="n">user</span><span class="p">]];</span>
+     <span class="n">complete</span><span class="p">(</span><span class="n">users</span><span class="p">,</span><span class="n">error</span><span class="p">);</span>
+ <span class="p">}</span>
+<span class="k">@end</span>
+
+<span class="k">@implementation</span> <span class="nc">UserListViewController</span>
+<span class="p">[</span><span class="n">UserCellViewModel</span> <span class="nf">fetchUsers</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">UserCellViewModel</span><span class="o">*&gt;</span> <span class="o">*</span><span class="n">users</span><span class="p">,</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">){</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">users</span> <span class="o">=</span> <span class="n">users</span>
+        <span class="p">...</span>
+    <span class="p">}</span>
+<span class="p">}];</span>
+<span class="p">...</span>
+
+<span class="n">UserCellViewModel</span> <span class="o">*</span><span class="n">user</span>  <span class="o">=</span> <span class="n">users</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">row</span><span class="p">];</span>
+<span class="n">UserInfoCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">UserInfoCell</span> <span class="nf">cellForTableview</span><span class="p">:</span><span class="n">tableview</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">indexPath</span><span class="p">];</span>
+<span class="n">cell</span><span class="p">.</span><span class="n">userViewModel</span> <span class="o">=</span> <span class="n">user</span><span class="p">;</span>
+<span class="k">@end</span>
+</code></pre></div></div>
+<p>上面的示例中我讲网络请求放到了ViewModel中，返回给外面的数据就是组织好的ViewModel对象，你可以针对你们自己工程的特点来抽取这个过程，这里说一下我们的做法以供借鉴：我们对于接口的数据请求有单独的一个层DataSerivice去做，比如User相关的就会有一个UserDataService，它会封装好对User数据的所有网络请求，返回的是Model数据，这样我们的接口和Model也是单独可复用的。ViewModel会调用UserDataService拿到数据，并生成viewmodel对象，Controller中拿到处理好的ViewModel传递给view即可。</p>
+
+<p>这里你可能会有疑问：UserInfoCell依赖现在改成了ViewModel，这和之前依赖Model本质上没有区别啊？反而多引入了一层数据。解答这个问题就需要回到我们上面提到的一句话：</p>
+<blockquote>
+  <p>“ViewModel不应该是对Model的又一层封装，对ViewModel的设计应该考虑需求方的使用，这个需求方就是View。”</p>
+</blockquote>
+
+<p>不知道你注意到没，我在定义UserCellViewModel的属性时命名是这样的：icon、title、subTitle、content，事实上和user没有任何关系了，反而是view有了某种“巧合”：这个view上要显示头像、一个主题文字、一个简述、一段详细内容。所以我们的ViewModel类名叫UserCellViewModel根本就不合适，同样的我们的View难道只能显示人员的信息吗？一本书、一张专辑等等都可以使用这个view类显示一个简要信息，虽然UserInfoCell并不限定要展示的数据类型，但是因为你的名字是“UserInfoCell”于是自我画地为牢了。修改一下类名:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>UserInfoCell—&gt;BaseInfoCell
+UserCellViewModel—&gt;BaseInfoViewModel
+</code></pre></div></div>
+
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@implementation</span> <span class="nc">BaseInfoViewModel</span>
+ <span class="k">+</span><span class="p">(</span><span class="n">id</span><span class="p">)</span> <span class="nf">baseInfoViewModelWithUser</span><span class="p">:(</span><span class="n">User</span><span class="o">*</span><span class="p">)</span><span class="nv">user</span><span class="p">{</span>
+     <span class="n">BaseInfoViewModel</span> <span class="o">*</span><span class="n">vm</span> <span class="o">=</span> <span class="p">[</span><span class="n">BaseInfoViewModel</span> <span class="nf">alloc</span><span class="p">]</span><span class="n">init</span><span class="p">];</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">icon</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">icon</span><span class="p">;</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">name</span><span class="p">;</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">subTitle</span>  <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">desc</span><span class="p">;</span>
+     <span class="n">vm</span><span class="p">.</span><span class="n">content</span> <span class="o">=</span> <span class="n">user</span><span class="p">.</span><span class="n">detail</span><span class="p">;</span>
+     <span class="k">return</span> <span class="n">vm</span><span class="p">;</span>
+ <span class="p">}</span>
+ <span class="k">+</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">fetchUsers</span><span class="p">:(</span><span class="kt">void</span> <span class="o">^</span><span class="p">(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">BaseInfoViewModel</span><span class="o">*&gt;</span> <span class="o">*</span><span class="n">users</span><span class="p">,</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">))</span><span class="nv">complete</span><span class="p">{</span>
+     <span class="n">NSMuatbleArray</span><span class="o">*</span> <span class="n">users</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
+     <span class="c1">//获取model数据，构造viewmodel
+</span>     <span class="p">....</span>
+     <span class="p">[</span><span class="n">users</span> <span class="nf">addObject</span><span class="p">:[</span><span class="n">BaseInfoViewModel</span> <span class="nf">userCellViewModelWithUser</span><span class="p">:</span><span class="n">user</span><span class="p">]];</span>
+     <span class="n">complete</span><span class="p">(</span><span class="n">users</span><span class="p">,</span><span class="n">error</span><span class="p">);</span>
+ <span class="p">}</span>
+<span class="k">@end</span>
+
+<span class="k">@implementation</span> <span class="nc">UserListViewController</span>
+<span class="p">[</span><span class="n">BaseInfoViewModel</span> <span class="nf">fetchUsers</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSArray</span><span class="o">&lt;</span><span class="n">BaseInfoViewModel</span><span class="o">*&gt;</span> <span class="o">*</span><span class="n">users</span><span class="p">,</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">){</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">){</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">users</span> <span class="o">=</span> <span class="n">users</span>
+        <span class="p">...</span>
+    <span class="p">}</span>
+<span class="p">}];</span>
+<span class="p">...</span>
+
+<span class="n">BaseInfoViewModel</span> <span class="o">*</span><span class="n">user</span>  <span class="o">=</span> <span class="n">users</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">row</span><span class="p">];</span>
+<span class="n">BaseInfoCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span> <span class="p">[</span><span class="n">BaseInfoCell</span> <span class="nf">cellForTableview</span><span class="p">:</span><span class="n">tableview</span> <span class="nf">atIndex</span><span class="p">:</span><span class="n">indexPath</span><span class="p">];</span>
+<span class="n">cell</span><span class="p">.</span><span class="n">userViewModel</span> <span class="o">=</span> <span class="n">user</span><span class="p">;</span>
+<span class="k">@end</span>
+</code></pre></div></div>
+<p>当然上面的代码还有一个问题，BaseInfoViewModel中获取了User数据，后续如果这个BaseInfoCell需要显示书籍信息，是否在BaseInfoViewModel中写一个获取Book数据的方法？避免BaseInfoViewModel越来越冗余可以单独抽取一个类来完成获取Model构造ViewModel的过程。是否需要这么做就要你自己根据实际需要判断了，毕竟在一个APP中各种类型的数据一般会有属自己的特定展示形态。</p>
+
+
+
+                <hr>
+
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/leung-c.github.io/blog/2016/12/23/CategoryOfView/" data-toggle="tooltip" data-placement="top" title="利用分类让你的view强大起来">&larr; Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/leung-c.github.io/blog/2017/06/10/TableviewAssemble/" data-toggle="tooltip" data-placement="top" title="一种灵活简单的tablview组装模式">Next Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                <!-- Duoshuo Share start -->
+                <style>
+                    .ds-share{
+                        text-align: right;
+                    }
+                    
+                    @media only screen and (max-width: 700px) {
+                        .ds-share {
+
+                        }
+                    }
+                </style>
+
+                <div class="ds-share"
+                    data-thread-key="/blog/2017/03/05/ClassCategory" data-title="由MVC框架下常见的代码问题想到的"
+                    data-images="http://localhost:4000/img/green.jpg"
+                    data-content="在我们团队的开发工作中有这样的约定：尽可能保证view的纯展示、交互职能，以达到view最大限度的复用。可能你会问：难道不是本来就该这么做么？确实，理论... | Microdust:Azeril's blog"
+                    data-url="http://localhost:4000/blog/2017/03/05/ClassCategory/">
+                    <div class="ds-share-inline">
+                      <ul  class="ds-share-icons-16">
+
+                        <li data-toggle="ds-share-icons-more"><a class="ds-more" href="#">分享到：</a></li>
+                        <li><a class="ds-wechat flat" href="javascript:void(0);" data-service="wechat">微信</a></li>
+                        <li><a class="ds-weibo flat" href="javascript:void(0);" data-service="weibo">微博</a></li>
+                        <li><a class="ds-douban flat" href="javascript:void(0);" data-service="douban">豆瓣</a></li>
+                      </ul>
+                      <div class="ds-share-icons-more">
+                      </div>
+                    </div>
+                <hr>
+                </div>
+                <!-- Duoshuo Share end-->
+
+
+                <!-- 多说评论框 start -->
+                <div class="comment">
+                    <div class="ds-thread" data-thread-key="/blog/2017/03/05/ClassCategory" data-title="由MVC框架下常见的代码问题想到的" data-url="http://localhost:4000/blog/2017/03/05/ClassCategory/"></div>
+                </div>
+                <!-- 多说评论框 end -->
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"cnfeat"};
+    (function() {
+        var ds = document.createElement('script');
+        ds.type = 'text/javascript';ds.async = true;
+        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+        ds.charset = 'UTF-8';
+        (document.getElementsByTagName('head')[0]
+         || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+</script>
+<!-- 多说公共JS代码 end -->
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("http://cdn.bootcss.com/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'always',
+          placement: 'right',
+          icon: ''
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
+
+
+    <!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                    <!-- kill the Facebook and Weibo -->
+                    <li>
+                        <a href="/leung-c.github.io/feed.xml">
+                            <span class="fa-stack fa-lg">
+                                <i class="fa fa-circle fa-stack-2x"></i>
+                                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+
+                    
+                    
+                    <!--
+                    
+                    -->
+
+                    <!--
+                    
+                    -->
+
+                    
+                    <!--
+                    
+                    -->
+
+                </ul>
+                <p class="copyright text-muted">
+                &copy; 2018 LiangChao ❖ Powered by Jekyll.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- jQuery -->
+<script src="/leung-c.github.io/js/jquery.min.js "></script>
+
+<!-- Bootstrap Core JavaScript -->
+<script src="/leung-c.github.io/js/bootstrap.min.js "></script>
+
+<!-- Custom Theme JavaScript -->
+<script src="/leung-c.github.io/js/clean-blog.min.js "></script>
+
+
+
+<!-- Highlight.js -->
+<script>
+    async("http://cdn.bootcss.com/highlight.js/8.6/highlight.min.js",function(){
+        hljs.initHighlightingOnLoad();
+    })
+</script>
+<link href="http://cdn.bootcss.com/highlight.js/8.6/styles/github.min.css" rel="stylesheet">
+
+
+</body>
+
+</html>
