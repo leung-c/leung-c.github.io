@@ -191,16 +191,19 @@
 <p>理论上我们的组件可以用与普通的TableView，但是我们的组件加载有其特殊性：我们需要根据组件类型去实例化并加载组件。为了方便管理组件的加载过程，我们创建了一个ComponentContainerScrollView类来作为专门承载组件的容器，它继承自UITableView，并且其代理和数据源代理是其本身。</p>
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">ComponentContainerScrollView</span> <span class="p">:</span> <span class="nc">UITableView</span>
 <span class="c1">//组件数据源
-</span><span class="k">@property</span><span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSArray</span><span class="o">&lt;</span><span class="n">ComponentViewModel</span><span class="o">*&gt;*</span> <span class="n">components</span><span class="p">;</span>
+</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSArray</span><span class="o">&lt;</span><span class="n">ComponentViewModel</span><span class="o">*&gt;*</span> <span class="n">components</span><span class="p">;</span>
 <span class="k">@end</span>
 
 <span class="k">@interface</span> <span class="nc">ComponentViewModel</span> <span class="p">:</span> <span class="nc">NSObject</span>
 
 <span class="c1">//组件的唯一标示，复用标识
-</span><span class="k">@property</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span><span class="o">*</span> <span class="n">identifier</span><span class="p">;</span>
+</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span><span class="o">*</span> <span class="n">identifier</span><span class="p">;</span>
 
 <span class="c1">//用于组件展示的数据
-</span><span class="k">@property</span><span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">id</span> <span class="n">data</span><span class="p">;</span>
+</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">id</span> <span class="n">data</span><span class="p">;</span>
 <span class="k">@end</span>
 
 <span class="k">@implementation</span> <span class="nc">ComponentContainerScrollView</span>
@@ -210,7 +213,8 @@
     <span class="n">self</span><span class="p">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
     <span class="n">self</span><span class="p">.</span><span class="n">dataSource</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
     <span class="c1">//默认是没有cell的
-</span>    <span class="n">self</span><span class="p">.</span><span class="n">rowHeight</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span>    
+    <span class="n">self</span><span class="p">.</span><span class="n">rowHeight</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
     <span class="n">self</span><span class="p">.</span><span class="n">separatorStyle</span> <span class="o">=</span> <span class="n">UITableViewCellSeparatorStyleNone</span><span class="p">;</span>
     <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
 <span class="p">}</span>
@@ -218,19 +222,22 @@
 </code></pre></div></div>
 <p>我们实现TableView的代理和数据源方法</p>
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//组件的个数
-</span><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">numberOfSectionsInTableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span><span class="p">{</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">numberOfSectionsInTableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span><span class="p">{</span>
     <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">components</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="c1">//组件高度
-</span><span class="k">-</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">heightForHeaderInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">heightForHeaderInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
     <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">components</span> <span class="nf">safeObjectAtIndex</span><span class="p">:</span><span class="n">section</span><span class="p">];</span>
     <span class="n">Class</span> <span class="n">class</span> <span class="o">=</span> <span class="p">[[</span><span class="n">ComponentBuilder</span> <span class="nf">sharedInstance</span><span class="p">]</span> <span class="nf">componentTypeForIdentifier</span><span class="p">:</span><span class="n">model</span><span class="p">.</span><span class="n">identifier</span><span class="p">];</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">class</span> <span class="nf">heightForData</span><span class="p">:</span><span class="n">model</span><span class="p">];</span>    
 <span class="p">}</span>
 
 <span class="c1">//创建组件
-</span><span class="k">-</span> <span class="p">(</span><span class="n">UIView</span><span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">viewForHeaderInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UIView</span><span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">viewForHeaderInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span><span class="p">{</span>
     <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">components</span> <span class="nf">safeObjectAtIndex</span><span class="p">:</span><span class="n">section</span><span class="p">];</span>
     <span class="n">ComponentContainerScrollView</span> <span class="o">*</span><span class="n">view</span> <span class="o">=</span> <span class="p">(</span><span class="n">ComponentContainerScrollView</span><span class="o">*</span><span class="p">)[</span><span class="n">tableView</span> <span class="nf">dequeueReusableHeaderFooterViewWithIdentifier</span><span class="p">:</span><span class="n">model</span><span class="p">.</span><span class="n">identifier</span><span class="p">];</span>
     <span class="k">if</span><span class="p">(</span><span class="n">view</span><span class="o">==</span><span class="nb">nil</span><span class="p">){</span>
@@ -288,8 +295,7 @@
 
 <span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">loadData</span><span class="p">{</span>
     <span class="n">WEAKSELF</span><span class="p">;</span>
-    <span class="c1">//
-</span>    <span class="p">[</span><span class="n">_manger</span> <span class="nf">requestForPage</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">pageId</span> <span class="nf">components</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">NSArray</span> <span class="o">*</span><span class="n">array</span><span class="p">){</span>
+    <span class="p">[</span><span class="n">_manger</span> <span class="nf">requestForPage</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">pageId</span> <span class="nf">components</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">NSArray</span> <span class="o">*</span><span class="n">array</span><span class="p">){</span>
         <span class="n">weakSelf</span><span class="p">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">array</span><span class="p">;</span>
         <span class="n">weakSelf</span><span class="p">.</span><span class="n">componentView</span><span class="p">.</span><span class="n">components</span> <span class="o">=</span> <span class="n">weakSelf</span><span class="p">.</span><span class="n">components</span><span class="p">;</span>
     <span class="p">}];</span>
@@ -326,16 +332,20 @@
  */</span>
 
 <span class="c1">//cell的个数
-</span><span class="k">+</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">cellRowsAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">cellRowsAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
 
 <span class="c1">//cell的高度
-</span><span class="k">+</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">cellHeightAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">cellHeightAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
 
 <span class="c1">//返回一个cell
-</span><span class="k">+</span> <span class="p">(</span><span class="n">nullable</span> <span class="n">UITableViewCell</span><span class="o">*</span><span class="p">)</span><span class="nf">cellForTableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">atIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="n">nullable</span> <span class="n">UITableViewCell</span><span class="o">*</span><span class="p">)</span><span class="nf">cellForTableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">atIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
 
 <span class="c1">//点击了一个cell
-</span><span class="k">+</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">didSelectRowAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">oComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">didSelectRowAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">oComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">;</span>
 
 <span class="cm">/**
  组件的复用ID
@@ -355,14 +365,16 @@
     <span class="k">return</span>  <span class="p">[</span><span class="n">class</span> <span class="nf">cellRowsAtIndexPath</span><span class="p">:[</span><span class="n">NSIndexPath</span> <span class="nf">indexPathForRow</span><span class="p">:</span><span class="mi">0</span> <span class="nf">inSection</span><span class="p">:</span><span class="n">section</span><span class="p">]</span> <span class="n">forData</span><span class="o">:</span><span class="n">model</span><span class="p">];</span>
 <span class="p">}</span>
 <span class="c1">//cell高度
-</span><span class="k">-</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">heightForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">heightForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
 <span class="p">{</span>
     <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">components</span> <span class="nf">safeObjectAtIndex</span><span class="p">:</span><span class="n">indexPath</span><span class="p">.</span><span class="n">section</span><span class="p">];</span>
     <span class="n">Class</span> <span class="n">class</span> <span class="o">=</span> <span class="p">[[</span><span class="n">CMSComponentBuilder</span> <span class="nf">sharedInstance</span><span class="p">]</span> <span class="nf">componentTypeForIdentifier</span><span class="p">:</span><span class="n">model</span><span class="p">.</span><span class="n">identifier</span><span class="p">];</span>
     <span class="k">return</span>  <span class="p">[</span><span class="n">class</span> <span class="nf">cellHeightAtIndexPath</span><span class="p">:</span><span class="n">indexPath</span> <span class="nf">forData</span><span class="p">:</span><span class="n">model</span><span class="p">];</span>
 <span class="p">}</span>
 <span class="c1">//创建cell
-</span><span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span><span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UITableViewCell</span><span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">cellForRowAtIndexPath</span><span class="p">:(</span><span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">indexPath</span>
 <span class="p">{</span>
     <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">components</span> <span class="nf">safeObjectAtIndex</span><span class="p">:</span><span class="n">indexPath</span><span class="p">.</span><span class="n">section</span><span class="p">];</span>
     <span class="n">Class</span> <span class="n">class</span> <span class="o">=</span> <span class="p">[[</span><span class="n">CMSComponentBuilder</span> <span class="nf">sharedInstance</span><span class="p">]</span> <span class="nf">componentTypeForIdentifier</span><span class="p">:</span><span class="n">model</span><span class="p">.</span><span class="n">identifier</span><span class="p">];</span>
@@ -372,7 +384,8 @@
     <span class="k">return</span>  <span class="p">[</span><span class="n">class</span> <span class="nf">cellForTableView</span><span class="p">:</span><span class="n">tableView</span> <span class="nf">atIndexPath</span><span class="p">:</span><span class="n">indexPath</span> <span class="n">withData</span><span class="o">:</span><span class="n">model</span><span class="p">];</span>
 <span class="p">}</span>
 <span class="c1">//组件的加载
-</span><span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">numberOfSectionsInTableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">numberOfSectionsInTableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span>
 <span class="p">{</span>
     <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">components</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
 <span class="p">}</span>
@@ -383,7 +396,8 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">class</span> <span class="nf">heightForData</span><span class="p">:</span><span class="n">model</span><span class="p">];</span>    
 <span class="p">}</span>
 <span class="c1">//组件创建
-</span><span class="k">-</span> <span class="p">(</span><span class="n">UIView</span><span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">viewForHeaderInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UIView</span><span class="o">*</span><span class="p">)</span><span class="nf">tableView</span><span class="p">:(</span><span class="n">UITableView</span> <span class="o">*</span><span class="p">)</span><span class="nv">tableView</span> <span class="nf">viewForHeaderInSection</span><span class="p">:(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">section</span>
 <span class="p">{</span>
     <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="n">model</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">components</span> <span class="nf">safeObjectAtIndex</span><span class="p">:</span><span class="n">section</span><span class="p">];</span>
     <span class="n">ComponentContainerScrollView</span> <span class="o">*</span><span class="n">view</span> <span class="o">=</span> <span class="p">(</span><span class="n">ComponentContainerScrollView</span><span class="o">*</span><span class="p">)[</span><span class="n">tableView</span> <span class="nf">dequeueReusableHeaderFooterViewWithIdentifier</span><span class="p">:</span><span class="n">model</span><span class="p">.</span><span class="n">identifier</span><span class="p">];</span>
@@ -433,17 +447,20 @@
 <span class="p">}</span>
 
 <span class="c1">//cell的个数
-</span><span class="k">+</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">cellRowsAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span> <span class="nf">cellRowsAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">model</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">@"stores"</span><span class="p">]</span> <span class="nf">count</span><span class="p">];</span>
 <span class="p">}</span>
 
 <span class="c1">//cell的高度
-</span><span class="k">+</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">cellHeightAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span> <span class="nf">cellHeightAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span><span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">forData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span><span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
     <span class="n">reurn</span> <span class="mi">150</span><span class="p">;</span>
 <span class="p">}</span>
 
 <span class="c1">//返回一个cell
-</span><span class="k">+</span> <span class="p">(</span><span class="n">nullable</span> <span class="n">UITableViewCell</span><span class="o">*</span><span class="p">)</span><span class="nf">cellForTableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">atIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="n">nullable</span> <span class="n">UITableViewCell</span><span class="o">*</span><span class="p">)</span><span class="nf">cellForTableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">atIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">ComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
     <span class="n">StroreInfoCell</span> <span class="o">*</span><span class="n">cell</span> <span class="o">=</span>  <span class="p">[</span><span class="n">StroreInfoCell</span> <span class="nf">cellForTableView</span><span class="p">:</span><span class="n">table</span><span class="p">];</span>
     <span class="n">NSArray</span> <span class="o">*</span><span class="n">stores</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="s">@"stores"</span><span class="p">];</span>
     <span class="n">cell</span><span class="p">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">stores</span><span class="p">[</span><span class="n">indexPath</span><span class="p">.</span><span class="nf">row</span><span class="p">];</span>
@@ -451,7 +468,8 @@
 <span class="p">}</span>
 
 <span class="c1">//点击了一个cell
-</span><span class="k">+</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">didSelectRowAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">oComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
+</span>
+<span class="k">+</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">tableView</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">UITableView</span><span class="o">*</span><span class="p">)</span><span class="nv">table</span> <span class="nf">didSelectRowAtIndexPath</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">NSIndexPath</span> <span class="o">*</span><span class="p">)</span><span class="nv">path</span> <span class="nf">withData</span><span class="p">:(</span><span class="n">nullable</span> <span class="n">oComponentViewModel</span> <span class="o">*</span><span class="p">)</span><span class="nv">model</span><span class="p">{</span>
     <span class="n">StoreVC</span> <span class="o">*</span><span class="n">vc</span> <span class="o">=</span> <span class="p">[[</span><span class="n">StoreVC</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
     <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">VC</span><span class="p">.</span><span class="n">naviController</span> <span class="nf">pushViewController</span><span class="p">:</span><span class="n">vc</span> <span class="nf">animated</span><span class="p">:</span><span class="nb">YES</span><span class="p">];</span>
 <span class="p">}</span>
@@ -464,10 +482,10 @@
 <span class="p">}</span>
 <span class="k">@end</span>
 </code></pre></div></div>
-<p>现在，组件的形式可以很灵活了，它也可以全部只有cell，真个装载过程我们将组件的形式、行为完全交给它自身管理，外部在相关处理点调用对应的方法即可，相关类的交互过程如下：</p>
+<p>现在，组件的形式可以很灵活了，它也可以全部只有cell，整个装载过程我们将组件的形式、行为完全交给它自身管理，外部在相关处理点调用对应的方法即可，相关类的交互过程如下：</p>
 <pre><code class="language-sequence">ComponentBaseView-&gt;ComponentBuilder: +Regist
 Note left of ComponentBaseView: SubClassImplement
-Note right of ComponentContainer: TableView Delegate&amp;DataSource \nMethods
+Note right of ComponentContainer: TableView Delegate&amp;DataSource\nMethods
 
 ComponentBuilder-&gt;ComponentContainer:GetComponent
 ComponentBaseView--&gt;ComponentContainer: +numberOfRows
@@ -539,21 +557,41 @@ ComponentBaseView--&gt;ComponentContainer: +ViewtForSection\n+CellForRow
     </div>
 </article>
 
+<script src="/leung-c.github.io/js/jquery.min.js"></script>
+<script src="/leung-c.github.io/js/raphael.min.js"></script>
+<script src="/leung-c.github.io/js/mermaid.full.js"></script>
+<script src="/leung-c.github.io/js/flowchart.min.js"></script>
+<script src="/leung-c.github.io/js/jquery.flowchart.min.js"></script>
+<script src="/leung-c.github.io/js/webfont.js"></script>
+<script src="/leung-c.github.io/js/snap.svg-min.js"></script>
+<script src="/leung-c.github.io/js/underscore-min.js"></script>
+<script src="/leung-c.github.io/js/sequence-diagram.min.js"></script>
 
+<script>
+    $(".language-sequence").sequenceDiagram({theme: 'simple'});
+    $(".diagram").sequenceDiagram({theme: 'simple'});
 
-<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"cnfeat"};
-    (function() {
-        var ds = document.createElement('script');
-        ds.type = 'text/javascript';ds.async = true;
-        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-        ds.charset = 'UTF-8';
-        (document.getElementsByTagName('head')[0]
-         || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
 </script>
-<!-- 多说公共JS代码 end -->
+<script>
+	function flow(name,f)
+	{
+        var chart = flowchart.parse(f);
+        chart.drawSVG(name);
+	}
+
+	window.onload = function () 
+	{
+		var cd = document.getElementsByClassName("flow");
+		for (var i = 0; i < cd.length; i++) 
+		{
+			var t = cd[i].getElementsByClassName("flowcode")[0].value;
+			var canvas = "canvas" + i;
+			cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
+			flow(canvas, t);
+		}
+        
+	}
+</script>
 
 <!-- async load function -->
 <script>

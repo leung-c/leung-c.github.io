@@ -30,6 +30,9 @@ plugins:
 # use Github Flavored Markdown !important  
 # document: http://jekyllrb.com/docs/configuration/#kramdown  
 markdown: kramdown
+kramdown:
+  input: GFM
+  use_coderay: true
 highlighter: rouge
 permalink: pretty
 paginate: 8

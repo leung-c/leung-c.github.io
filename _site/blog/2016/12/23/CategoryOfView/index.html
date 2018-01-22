@@ -304,21 +304,41 @@
     </div>
 </article>
 
+<script src="/leung-c.github.io/js/jquery.min.js"></script>
+<script src="/leung-c.github.io/js/raphael.min.js"></script>
+<script src="/leung-c.github.io/js/mermaid.full.js"></script>
+<script src="/leung-c.github.io/js/flowchart.min.js"></script>
+<script src="/leung-c.github.io/js/jquery.flowchart.min.js"></script>
+<script src="/leung-c.github.io/js/webfont.js"></script>
+<script src="/leung-c.github.io/js/snap.svg-min.js"></script>
+<script src="/leung-c.github.io/js/underscore-min.js"></script>
+<script src="/leung-c.github.io/js/sequence-diagram.min.js"></script>
 
+<script>
+    $(".language-sequence").sequenceDiagram({theme: 'simple'});
+    $(".diagram").sequenceDiagram({theme: 'simple'});
 
-<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
-<script type="text/javascript">
-var duoshuoQuery = {short_name:"cnfeat"};
-    (function() {
-        var ds = document.createElement('script');
-        ds.type = 'text/javascript';ds.async = true;
-        ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-        ds.charset = 'UTF-8';
-        (document.getElementsByTagName('head')[0]
-         || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
 </script>
-<!-- 多说公共JS代码 end -->
+<script>
+	function flow(name,f)
+	{
+        var chart = flowchart.parse(f);
+        chart.drawSVG(name);
+	}
+
+	window.onload = function () 
+	{
+		var cd = document.getElementsByClassName("flow");
+		for (var i = 0; i < cd.length; i++) 
+		{
+			var t = cd[i].getElementsByClassName("flowcode")[0].value;
+			var canvas = "canvas" + i;
+			cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
+			flow(canvas, t);
+		}
+        
+	}
+</script>
 
 <!-- async load function -->
 <script>

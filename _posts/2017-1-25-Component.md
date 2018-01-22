@@ -62,15 +62,18 @@ description:
 ```objc
 @interface ComponentContainerScrollView : UITableView
 //组件数据源
+
 @property(strong,nonatomic) NSArray<ComponentViewModel*>* components;
 @end
 
 @interface ComponentViewModel : NSObject
 
 //组件的唯一标示，复用标识
+
 @property(copy,nonatomic) NSString* identifier;
 
 //用于组件展示的数据
+
 @property(strong,nonatomic) id data;
 @end
 
@@ -81,6 +84,7 @@ description:
     self.delegate = self;
     self.dataSource = self;
     //默认是没有cell的
+    
     self.rowHeight = 0;
     self.separatorStyle = UITableViewCellSeparatorStyleNone;
     return self;
@@ -90,11 +94,13 @@ description:
 我们实现TableView的代理和数据源方法
 ```objc
 //组件的个数
+
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView{
     return self.components.count;
 }
 
 //组件高度
+
 - (CGFloat) tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
     ComponentViewModel *model = [self.components safeObjectAtIndex:section];
     Class class = [[ComponentBuilder sharedInstance] componentTypeForIdentifier:model.identifier];
@@ -102,6 +108,7 @@ description:
 }
 
 //创建组件
+
 - (UIView*)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
     ComponentViewModel *model = [self.components safeObjectAtIndex:section];
     ComponentContainerScrollView *view = (ComponentContainerScrollView*)[tableView dequeueReusableHeaderFooterViewWithIdentifier:model.identifier];
@@ -162,7 +169,6 @@ registerComponentType用于注册一个组件类型到ComponentBuilder，这个
 
 - (void)loadData{
     WEAKSELF;
-    //
     [_manger requestForPage:self.pageId components:^(NSError *error,NSArray *array){
         weakSelf.components = array;
         weakSelf.componentView.components = weakSelf.components;
@@ -201,15 +207,19 @@ ComponentBaseView修改如下:
  */
 
 //cell的个数
+
 + (NSInteger) cellRowsAtIndexPath:(nullable NSIndexPath*)path forData:(nullable ComponentViewModel*)model;
 
 //cell的高度
+
 + (CGFloat) cellHeightAtIndexPath:(nullable NSIndexPath*)path forData:(nullable ComponentViewModel*)model;
 
 //返回一个cell
+
 + (nullable UITableViewCell*)cellForTableView:(nullable UITableView*)table atIndexPath:(nullable NSIndexPath *)path withData:(nullable ComponentViewModel *)model;
 
 //点击了一个cell
+
 + (void) tableView:(nullable UITableView*)table didSelectRowAtIndexPath:(nullable NSIndexPath *)path withData:(nullable oComponentViewModel *)model;
 
 /**
@@ -231,6 +241,7 @@ ComponentViewController修改如下：
     return  [class cellRowsAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:section] forData:model];
 }
 //cell高度
+
 - (CGFloat) tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     ComponentViewModel *model = [self.components safeObjectAtIndex:indexPath.section];
@@ -238,6 +249,7 @@ ComponentViewController修改如下：
     return  [class cellHeightAtIndexPath:indexPath forData:model];
 }
 //创建cell
+
 - (UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     ComponentViewModel *model = [self.components safeObjectAtIndex:indexPath.section];
@@ -248,6 +260,7 @@ ComponentViewController修改如下：
     return  [class cellForTableView:tableView atIndexPath:indexPath withData:model];
 }
 //组件的加载
+
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
 {
     return self.components.count;
@@ -259,6 +272,7 @@ ComponentViewController修改如下：
     return [class heightForData:model];    
 }
 //组件创建
+
 - (UIView*)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     ComponentViewModel *model = [self.components safeObjectAtIndex:section];
@@ -310,16 +324,19 @@ ComponentViewController修改如下：
 }
 
 //cell的个数
+
 + (NSInteger) cellRowsAtIndexPath:(nullable NSIndexPath*)path forData:(nullable ComponentViewModel*)model{
     return [model.data[@"stores"] count];
 }
 
 //cell的高度
+
 + (CGFloat) cellHeightAtIndexPath:(nullable NSIndexPath*)path forData:(nullable ComponentViewModel*)model{
     reurn 150;
 }
 
 //返回一个cell
+
 + (nullable UITableViewCell*)cellForTableView:(nullable UITableView*)table atIndexPath:(nullable NSIndexPath *)path withData:(nullable ComponentViewModel *)model{
     StroreInfoCell *cell =  [StroreInfoCell cellForTableView:table];
     NSArray *stores = model.data[@"stores"];
@@ -328,6 +345,7 @@ ComponentViewController修改如下：
 }
 
 //点击了一个cell
+
 + (void) tableView:(nullable UITableView*)table didSelectRowAtIndexPath:(nullable NSIndexPath *)path withData:(nullable oComponentViewModel *)model{
     StoreVC *vc = [[StoreVC alloc] init];
     [self.VC.naviController pushViewController:vc animated:YES];
@@ -341,15 +359,16 @@ ComponentViewController修改如下：
 }
 @end
 ```
-现在，组件的形式可以很灵活了，它也可以全部只有cell，真个装载过程我们将组件的形式、行为完全交给它自身管理，外部在相关处理点调用对应的方法即可，相关类的交互过程如下：
+现在，组件的形式可以很灵活了，它也可以全部只有cell，整个装载过程我们将组件的形式、行为完全交给它自身管理，外部在相关处理点调用对应的方法即可，相关类的交互过程如下：
 ```sequence
 ComponentBaseView->ComponentBuilder: +Regist
 Note left of ComponentBaseView: SubClassImplement
-Note right of ComponentContainer: TableView Delegate&DataSource \nMethods
+Note right of ComponentContainer: TableView Delegate&DataSource\nMethods
 
 ComponentBuilder->ComponentContainer:GetComponent
 ComponentBaseView-->ComponentContainer: +numberOfRows
 ComponentBaseView-->ComponentContainer: +heightForHeaderView\n+heightForCell
 ComponentBaseView-->ComponentContainer: +ViewtForSection\n+CellForRow
 ```
+
 
