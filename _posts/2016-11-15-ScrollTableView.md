@@ -59,9 +59,11 @@ description:
     }
 }
 ```
+
 以上经过真机滑动调试，可能需要做调整，例如：滑到临界点后往回滑动等；但整体的实现应该差不多。这种方法可以解决前面两个问题但是对于第三个问题没办法解决，每次滑动到临界点，继续滑动时superScrollView的确是不滚了，但是childScrollView也没有滚，这是因为每次对手势的识别，是superScrollView、childScrollView两个的其中一个，只有当手指离开屏幕，再次触摸开始滑动时，才有可能(取决于手势的位置)切换到另一个ScrollView识别新的手势。
 问题的核心就在于：每次的滑动手势需要两个ScrollView都能响应！在这个前提下，我们再通过判断是否达到临界点条件来决定哪个ScrollView的手势响应不处理。
 能否拿到UIScrollView的手势对象呢？如果能拿到，我们可以在手势对象的代理方法中来明确设定某个ScrollView的ContentOffset，这似乎是一个可行办法，UIScrollView上的确有个panGestureRecognizer属性，然而看一下这个属性的定义：
+
 ```objc
 / Use these accessors to configure the scroll view's built-in gesture recognizers.
 // Do not change the gestures' delegates or override the getters for these properties.
@@ -75,14 +77,17 @@ description:
 ### UIGestureRecognizerDelegate
 
 UIGestureRecognizer(手势识别器)的delegate需要遵守UIGestureRecognizerDelegate协议，在这个协议中有这样的一个方法声明：
+
 ```objc
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
 ```
+
 从上面Scroll的的手势识别器的定义中得知，Scroll中内置的手势识别器的delegate就是ScrollView本身。
 
 我们看一下苹果官方对这个方法的说明：
 > Asks the delegate if two gesture recognizers should be allowed to recognize gestures simultaneously.
 This method is called when recognition of a gesture by either gestureRecognizer or otherGestureRecognizer would block the other gesture recognizer from recognizing its gesture. Note that returning YES is guaranteed to allow simultaneous recognition; returning NO, on the other hand, is not guaranteed to prevent simultaneous recognition because the other gesture recognizer's delegate may return YES.
+
 简单翻译一下：
 询问代理对象是否允许两个手势识别器同时识别手势。这个方法在gestureRecognizer(识别器1)或者otherGestureRecognizer(识别器2)进行识别会被调用。如果返回YES表示可以进行同时识别；返回NO则保证不阻止同时识别，因为其它的识别器代理有可能返回YES。
 
@@ -91,6 +96,7 @@ This method is called when recognition of a gesture by either gestureRecognizer 
 /**
  是否需要处理同时发生的手势，内嵌scrollview如需无缝滚动，请设置为YES；
  */
+ 
 @property (nonatomic,assign) BOOL shouldRecognizeSimultaneouslyGesture;
 
 - (BOOL) gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
@@ -127,11 +133,13 @@ This method is called when recognition of a gesture by either gestureRecognizer 
 /**
  @param height 外部ScrollView滑动后需固定的高度
 */
+
 - (void) superScrollViewDidScrollWithFixedHeight:(CGFloat)height;
 
 /**
  @param superScrollView 外部ScrollView
  */
+ 
 - (void) childScrollViewDidScrollInSuperScrollView:(UIScrollView*)superScrollView;
 ```
 ```objc

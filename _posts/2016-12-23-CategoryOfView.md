@@ -40,10 +40,13 @@ typedef void(^ButtonDidPressed)(void);
 typedef void(^InputCompelete)(NSString *text);
 @interface NumberEditView : UIView
 //数量加回调
+
 @property (copy,nonatomic) ButtonDidPressed addAction;
 //数量减回调
+
 @property (copy,nonatomic) ButtonDidPressed reduceAction;
 // 输入完成回调
+
 @property (copy,nonatomic) InputCompelete inptutCompelete;
 
 @property (strong,nonatomic,readonly) UIButton *addButton;
@@ -56,6 +59,7 @@ typedef void(^InputCompelete)(NSString *text);
 ```objc
 @implementation NumberEditView(addToShopCart)
 //为添加购物车功能做好准备工作
+
 - (void) prepareForCartOperation{
     __weak typeof(self) weakView = self;
     [self setAddAction:^{
@@ -70,11 +74,13 @@ typedef void(^InputCompelete)(NSString *text);
 }
 - (void) add{
     //调用添加接口
+    
     __weak typeof(self) weakView = self;
     [net request:^(NSError *error,id response){
         if(!error){
             ...
             //显示在购车的最新数据
+            
             weakView.inputText.text = response;
             ..
         }
@@ -82,11 +88,13 @@ typedef void(^InputCompelete)(NSString *text);
 }
 - (void) reduce{
     //调用减少接口
+    
     __weak typeof(self) weakView = self;
     [net request:^(NSError *error,id response){
         if(!error){
             ...
             //显示在购车的最新数据
+            
             weakView.inputText.text = response;
             ...
         }
@@ -94,11 +102,13 @@ typedef void(^InputCompelete)(NSString *text);
 }
 - (void) updateToNumber:(NSString*) numString{
     //调用更新接口
+    
     __weak typeof(self) weakView = self;
     [net request:^(NSError *error,id response){
         if(!error){
             ...
             //显示在购车的最新数据
+            
             weakView.inputText.text = response;
             ...
         }

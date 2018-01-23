@@ -424,7 +424,7 @@
 <script>
     $(".language-sequence").sequenceDiagram({theme: 'simple'});
     $(".diagram").sequenceDiagram({theme: 'simple'});
-
+    // $(".language-flow").drawSVG();
 </script>
 <script>
 	function flow(name,f)
@@ -435,14 +435,22 @@
 
 	window.onload = function () 
 	{
-		var cd = document.getElementsByClassName("flow");
-		for (var i = 0; i < cd.length; i++) 
-		{
-			var t = cd[i].getElementsByClassName("flowcode")[0].value;
-			var canvas = "canvas" + i;
+        var cd = document.getElementsByClassName("language-flow");
+        for (var i = 0; i < cd.length; i++) {
+            var t = cd[i].textContent;
+            var canvas = "canvas" + i;
 			cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
 			flow(canvas, t);
-		}
+        }
+        // return;
+		// var cd = document.getElementsByClassName("flow");
+		// for (var i = 0; i < cd.length; i++) 
+		// {
+		// 	var t = cd[i].getElementsByClassName("flowcode")[0].value;
+		// 	var canvas = "canvas" + i;
+		// 	cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
+		// 	flow(canvas, t);
+		// }
         
 	}
 </script>

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 基于tableview的页面组件化方案
+title: 基于tableview的页面动态化、组件化方案
 date: 2017-01-25
 categories: blog
 tags: [objective-c,首页,天猫,京东,CMS,组件]
@@ -371,4 +371,20 @@ ComponentBaseView-->ComponentContainer: +heightForHeaderView\n+heightForCell
 ComponentBaseView-->ComponentContainer: +ViewtForSection\n+CellForRow
 ```
 
+```flow
+st=>start: Zallgo://memberLevel?serviceType=1
+ed=>end: 更新页面
+logn=>condition: 是否已登录
+toLogin=>subroutine: 登录
+pg=>operation: 进入等级说明页
+data=>inputoutput: 获取会员数据
+api=>condition: API成功
+hasdata=>condition: 是否有数据
+nodata=>operation: 空态页
+hint=>operation: 异常提示
+st->logn(yes)->pg->data->api(yes)->hasdata(yes)->ed
+logn(no)->toLogin->pg(right)
+api(no)->hint
+hasdata(no)->nodata
+```
 

@@ -181,9 +181,11 @@
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></div>
+
 <p>以上经过真机滑动调试，可能需要做调整，例如：滑到临界点后往回滑动等；但整体的实现应该差不多。这种方法可以解决前面两个问题但是对于第三个问题没办法解决，每次滑动到临界点，继续滑动时superScrollView的确是不滚了，但是childScrollView也没有滚，这是因为每次对手势的识别，是superScrollView、childScrollView两个的其中一个，只有当手指离开屏幕，再次触摸开始滑动时，才有可能(取决于手势的位置)切换到另一个ScrollView识别新的手势。
 问题的核心就在于：每次的滑动手势需要两个ScrollView都能响应！在这个前提下，我们再通过判断是否达到临界点条件来决定哪个ScrollView的手势响应不处理。
 能否拿到UIScrollView的手势对象呢？如果能拿到，我们可以在手势对象的代理方法中来明确设定某个ScrollView的ContentOffset，这似乎是一个可行办法，UIScrollView上的确有个panGestureRecognizer属性，然而看一下这个属性的定义：</p>
+
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">/</span> <span class="n">Use</span> <span class="n">these</span> <span class="n">accessors</span> <span class="n">to</span> <span class="n">configure</span> <span class="n">the</span> <span class="n">scroll</span> <span class="n">view</span><span class="err">'</span><span class="n">s</span> <span class="n">built</span><span class="o">-</span><span class="k">in</span> <span class="n">gesture</span> <span class="n">recognizers</span><span class="p">.</span>
 <span class="c1">// Do not change the gestures' delegates or override the getters for these properties.
 </span>
@@ -196,22 +198,26 @@
 <h3 id="uigesturerecognizerdelegate">UIGestureRecognizerDelegate</h3>
 
 <p>UIGestureRecognizer(手势识别器)的delegate需要遵守UIGestureRecognizerDelegate协议，在这个协议中有这样的一个方法声明：</p>
+
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span><span class="nf">gestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">gestureRecognizer</span> <span class="nf">shouldRecognizeSimultaneouslyWithGestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">otherGestureRecognizer</span>
 </code></pre></div></div>
+
 <p>从上面Scroll的的手势识别器的定义中得知，Scroll中内置的手势识别器的delegate就是ScrollView本身。</p>
 
 <p>我们看一下苹果官方对这个方法的说明：</p>
 <blockquote>
   <p>Asks the delegate if two gesture recognizers should be allowed to recognize gestures simultaneously.
-This method is called when recognition of a gesture by either gestureRecognizer or otherGestureRecognizer would block the other gesture recognizer from recognizing its gesture. Note that returning YES is guaranteed to allow simultaneous recognition; returning NO, on the other hand, is not guaranteed to prevent simultaneous recognition because the other gesture recognizer’s delegate may return YES.
-简单翻译一下：
-询问代理对象是否允许两个手势识别器同时识别手势。这个方法在gestureRecognizer(识别器1)或者otherGestureRecognizer(识别器2)进行识别会被调用。如果返回YES表示可以进行同时识别；返回NO则保证不阻止同时识别，因为其它的识别器代理有可能返回YES。</p>
+This method is called when recognition of a gesture by either gestureRecognizer or otherGestureRecognizer would block the other gesture recognizer from recognizing its gesture. Note that returning YES is guaranteed to allow simultaneous recognition; returning NO, on the other hand, is not guaranteed to prevent simultaneous recognition because the other gesture recognizer’s delegate may return YES.</p>
 </blockquote>
+
+<p>简单翻译一下：
+询问代理对象是否允许两个手势识别器同时识别手势。这个方法在gestureRecognizer(识别器1)或者otherGestureRecognizer(识别器2)进行识别会被调用。如果返回YES表示可以进行同时识别；返回NO则保证不阻止同时识别，因为其它的识别器代理有可能返回YES。</p>
 
 <p>因此，我们需要帮UIScrollView实现这个代理方法，并返回YES，使得外部的ScrollView和内部的Scrollview都能响应在其视图内的手势，未了不必新建一个UIScrollView的子类来实现这个方法，我们通过分类的方式来达到目的。并不是所有的UIScrollView都需要支持多识别器同时识别，所以我们在分类中新增一个属性：shouldRecognizeSimultaneouslyGesture，然后在gestureRecognizer:shouldRecognizeSimultaneouslyWithGestureRecognizer方法中直接返回这个属性。</p>
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
  是否需要处理同时发生的手势，内嵌scrollview如需无缝滚动，请设置为YES；
  */</span>
+ 
 <span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">assign</span><span class="p">)</span> <span class="n">BOOL</span> <span class="n">shouldRecognizeSimultaneouslyGesture</span><span class="p">;</span>
 
 <span class="k">-</span> <span class="p">(</span><span class="n">BOOL</span><span class="p">)</span> <span class="nf">gestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">gestureRecognizer</span> <span class="nf">shouldRecognizeSimultaneouslyWithGestureRecognizer</span><span class="p">:(</span><span class="n">UIGestureRecognizer</span> <span class="o">*</span><span class="p">)</span><span class="nv">otherGestureRecognizer</span><span class="p">{</span>
@@ -246,11 +252,13 @@ This method is called when recognition of a gesture by either gestureRecognizer 
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
  @param height 外部ScrollView滑动后需固定的高度
 */</span>
+
 <span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">superScrollViewDidScrollWithFixedHeight</span><span class="p">:(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">height</span><span class="p">;</span>
 
 <span class="cm">/**
  @param superScrollView 外部ScrollView
  */</span>
+ 
 <span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">childScrollViewDidScrollInSuperScrollView</span><span class="p">:(</span><span class="n">UIScrollView</span><span class="o">*</span><span class="p">)</span><span class="nv">superScrollView</span><span class="p">;</span>
 </code></pre></div></div>
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">superScrollViewDidScrollWithFixedHeight</span><span class="p">:(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">height</span><span class="p">{</span>
@@ -347,7 +355,7 @@ This method is called when recognition of a gesture by either gestureRecognizer 
 <script>
     $(".language-sequence").sequenceDiagram({theme: 'simple'});
     $(".diagram").sequenceDiagram({theme: 'simple'});
-
+    // $(".language-flow").drawSVG();
 </script>
 <script>
 	function flow(name,f)
@@ -358,14 +366,22 @@ This method is called when recognition of a gesture by either gestureRecognizer 
 
 	window.onload = function () 
 	{
-		var cd = document.getElementsByClassName("flow");
-		for (var i = 0; i < cd.length; i++) 
-		{
-			var t = cd[i].getElementsByClassName("flowcode")[0].value;
-			var canvas = "canvas" + i;
+        var cd = document.getElementsByClassName("language-flow");
+        for (var i = 0; i < cd.length; i++) {
+            var t = cd[i].textContent;
+            var canvas = "canvas" + i;
 			cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
 			flow(canvas, t);
-		}
+        }
+        // return;
+		// var cd = document.getElementsByClassName("flow");
+		// for (var i = 0; i < cd.length; i++) 
+		// {
+		// 	var t = cd[i].getElementsByClassName("flowcode")[0].value;
+		// 	var canvas = "canvas" + i;
+		// 	cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
+		// 	flow(canvas, t);
+		// }
         
 	}
 </script>

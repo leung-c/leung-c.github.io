@@ -170,11 +170,14 @@
 <span class="k">typedef</span> <span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="n">InputCompelete</span><span class="p">)(</span><span class="n">NSString</span> <span class="o">*</span><span class="n">text</span><span class="p">);</span>
 <span class="k">@interface</span> <span class="nc">NumberEditView</span> <span class="p">:</span> <span class="nc">UIView</span>
 <span class="c1">//数量加回调
-</span><span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">ButtonDidPressed</span> <span class="n">addAction</span><span class="p">;</span>
+</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">ButtonDidPressed</span> <span class="n">addAction</span><span class="p">;</span>
 <span class="c1">//数量减回调
-</span><span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">ButtonDidPressed</span> <span class="n">reduceAction</span><span class="p">;</span>
+</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">ButtonDidPressed</span> <span class="n">reduceAction</span><span class="p">;</span>
 <span class="c1">// 输入完成回调
-</span><span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">InputCompelete</span> <span class="n">inptutCompelete</span><span class="p">;</span>
+</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">InputCompelete</span> <span class="n">inptutCompelete</span><span class="p">;</span>
 
 <span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">readonly</span><span class="p">)</span> <span class="n">UIButton</span> <span class="o">*</span><span class="n">addButton</span><span class="p">;</span>
 <span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span><span class="n">nonatomic</span><span class="p">,</span><span class="n">readonly</span><span class="p">)</span> <span class="n">UIButton</span> <span class="o">*</span><span class="n">reduceButton</span><span class="p">;</span>
@@ -185,7 +188,8 @@
 
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@implementation</span> <span class="nc">NumberEditView</span><span class="p">(</span><span class="nl">addToShopCart</span><span class="p">)</span>
 <span class="c1">//为添加购物车功能做好准备工作
-</span><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">prepareForCartOperation</span><span class="p">{</span>
+</span>
+<span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">prepareForCartOperation</span><span class="p">{</span>
     <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakView</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
     <span class="p">[</span><span class="n">self</span> <span class="nf">setAddAction</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
         <span class="p">[</span><span class="n">weakView</span> <span class="nf">add</span><span class="p">];</span>
@@ -199,36 +203,42 @@
 <span class="p">}</span>
 <span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">add</span><span class="p">{</span>
     <span class="c1">//调用添加接口
-</span>    <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakView</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+</span>    
+    <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakView</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
     <span class="p">[</span><span class="n">net</span> <span class="nf">request</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">id</span> <span class="n">response</span><span class="p">){</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">){</span>
             <span class="p">...</span>
             <span class="c1">//显示在购车的最新数据
-</span>            <span class="n">weakView</span><span class="p">.</span><span class="n">inputText</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
+</span>            
+            <span class="n">weakView</span><span class="p">.</span><span class="n">inputText</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
             <span class="p">..</span>
         <span class="p">}</span>
     <span class="p">}];</span>
 <span class="p">}</span>
 <span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">reduce</span><span class="p">{</span>
     <span class="c1">//调用减少接口
-</span>    <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakView</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+</span>    
+    <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakView</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
     <span class="p">[</span><span class="n">net</span> <span class="nf">request</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">id</span> <span class="n">response</span><span class="p">){</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">){</span>
             <span class="p">...</span>
             <span class="c1">//显示在购车的最新数据
-</span>            <span class="n">weakView</span><span class="p">.</span><span class="n">inputText</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
+</span>            
+            <span class="n">weakView</span><span class="p">.</span><span class="n">inputText</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
             <span class="p">...</span>
         <span class="p">}</span>
     <span class="p">}];</span>
 <span class="p">}</span>
 <span class="o">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">updateToNumber</span><span class="o">:</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span> <span class="n">numString</span><span class="p">{</span>
     <span class="c1">//调用更新接口
-</span>    <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakView</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+</span>    
+    <span class="n">__weak</span> <span class="n">typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="n">weakView</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
     <span class="p">[</span><span class="n">net</span> <span class="nf">request</span><span class="p">:</span><span class="o">^</span><span class="p">(</span><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">,</span><span class="n">id</span> <span class="n">response</span><span class="p">){</span>
         <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">){</span>
             <span class="p">...</span>
             <span class="c1">//显示在购车的最新数据
-</span>            <span class="n">weakView</span><span class="p">.</span><span class="n">inputText</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
+</span>            
+            <span class="n">weakView</span><span class="p">.</span><span class="n">inputText</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">response</span><span class="p">;</span>
             <span class="p">...</span>
         <span class="p">}</span>
     <span class="p">}];</span>
@@ -251,7 +261,7 @@
                     
                     
                     <li class="next">
-                        <a href="/leung-c.github.io/blog/2017/01/25/Component/" data-toggle="tooltip" data-placement="top" title="基于tableview的页面组件化方案">Next Post &rarr;</a>
+                        <a href="/leung-c.github.io/blog/2017/01/25/Component/" data-toggle="tooltip" data-placement="top" title="基于tableview的页面动态化、组件化方案">Next Post &rarr;</a>
                     </li>
                     
                 </ul>
@@ -317,7 +327,7 @@
 <script>
     $(".language-sequence").sequenceDiagram({theme: 'simple'});
     $(".diagram").sequenceDiagram({theme: 'simple'});
-
+    // $(".language-flow").drawSVG();
 </script>
 <script>
 	function flow(name,f)
@@ -328,14 +338,22 @@
 
 	window.onload = function () 
 	{
-		var cd = document.getElementsByClassName("flow");
-		for (var i = 0; i < cd.length; i++) 
-		{
-			var t = cd[i].getElementsByClassName("flowcode")[0].value;
-			var canvas = "canvas" + i;
+        var cd = document.getElementsByClassName("language-flow");
+        for (var i = 0; i < cd.length; i++) {
+            var t = cd[i].textContent;
+            var canvas = "canvas" + i;
 			cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
 			flow(canvas, t);
-		}
+        }
+        // return;
+		// var cd = document.getElementsByClassName("flow");
+		// for (var i = 0; i < cd.length; i++) 
+		// {
+		// 	var t = cd[i].getElementsByClassName("flowcode")[0].value;
+		// 	var canvas = "canvas" + i;
+		// 	cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
+		// 	flow(canvas, t);
+		// }
         
 	}
 </script>

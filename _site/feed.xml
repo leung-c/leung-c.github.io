@@ -5,9 +5,166 @@
     <description></description>
     <link>http://localhost:4000/leung-c.github.io/</link>
     <atom:link href="http://localhost:4000/leung-c.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 22 Jan 2018 18:28:49 +0800</pubDate>
-    <lastBuildDate>Mon, 22 Jan 2018 18:28:49 +0800</lastBuildDate>
+    <pubDate>Tue, 23 Jan 2018 17:39:33 +0800</pubDate>
+    <lastBuildDate>Tue, 23 Jan 2018 17:39:33 +0800</lastBuildDate>
     <generator>Jekyll v3.6.2</generator>
+    
+      <item>
+        <title>让你的GithubPage个人博客支持流程图</title>
+        <description>&lt;h3 id=&quot;githubpagejekyll&quot;&gt;GithubPage、Jekyll&lt;/h3&gt;
+&lt;p&gt;jekyll+githubPage是一个非常好用的搭建个人博客的平台，通过jekyll来搭建博客系统，染后将博客系统发布到github的远程仓库,这样人们就可以在互联网上访问我们的博客了。&lt;/p&gt;
+
+&lt;p&gt;jekyll博文编写采用MarkDown，MarkDown是的一种轻量级标记语言，共功能强大、简单易用、上手很快。Jekyll对MarkDown有很好的支持。&lt;/p&gt;
+
+&lt;p&gt;如何在Github搭建jekyll博客，如何使用MarkDown并不是本文的目的，毕竟网上有很多详细的教程，我也是按照网上交互完成部署的，本文主要是纪录我自己在使用过程中遇到的一个问题及其解决方案。&lt;/p&gt;
+
+&lt;h3 id=&quot;markdown中的流程图&quot;&gt;MarkDown中的流程图&lt;/h3&gt;
+
+&lt;p&gt;很多MarkDown编辑器对流程图都有很好的支持，在Markdown中可以像这样绘制流程图:&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-Text&quot;&gt;
+    ```flow
+    st=&amp;gt;start: 用户登陆
+    op=&amp;gt;operation: 登陆操作
+    cond=&amp;gt;condition: 登陆成功 Yes or No?
+    e=&amp;gt;end: 进入后台
+    st-&amp;gt;op-&amp;gt;cond
+    cond(yes)-&amp;gt;e
+    cond(no)-&amp;gt;op
+    ```
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这段类似于的代码的文本最终会渲染成这样：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-flow&quot;&gt;st=&amp;gt;start: 用户登陆
+op=&amp;gt;operation: 登陆操作
+cond=&amp;gt;condition: 登陆成功 Yes or No?
+e=&amp;gt;end: 进入后台
+st-&amp;gt;op-&amp;gt;cond
+cond(yes)-&amp;gt;e
+cond(no)-&amp;gt;op
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;同样的我们也可以用文本来描述时序图：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-Text&quot;&gt;    ```sequence
+    Andrew-&amp;gt;China: Says Hello
+    Note right of China: China thinks\nabout it 
+    China--&amp;gt;Andrew: How are you? 
+    Andrew-&amp;gt;&amp;gt;China: I am good thanks!
+    ```
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-sequence&quot;&gt;Andrew-&amp;gt;China: Says Hello 
+Note right of China: China thinks\nabout it 
+China--&amp;gt;Andrew: How are you? 
+Andrew-&amp;gt;&amp;gt;China: I am good thanks!
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;它们在预览时会将MarkDown文件解析成HTML，文件中的MarkDown标记会被解析成HTML标签。jekyll则是发布时会把MarkDown文件生成对应的HTML文件。&lt;/p&gt;
+
+&lt;p&gt;我个人常用的编辑器是VS Code，自带基本的MarkDown解析，当然如果需要对MarkDown有更多更全面的支持需要安装扩展插件，不少插件还是很好用的。不过不久前，发现了一个问题：如果文章中使用了流程图代码块，发布后并没有渲染成功。在网上查了不少资料，最后的结论是：jekyll、GithubPage不直接支持
+MarkDown流程图等，不支持的原因大概是因为需要引入第三方的框架，毕竟目前大部分对MarkDown流程图的支持是基于“Flowchart.js”、“js-sequence-diagrams”、“mermaid”等等这样的前端框架基础之上。&lt;/p&gt;
+
+&lt;p&gt;前面说MarkDown标记会被转成HTML标签，流程图标记也不例外。像上面流程图代码块在Jekyll中会被转成以下元素：&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;    &amp;lt;pre&amp;gt;&amp;lt;code class=&quot;language-flow&quot;&amp;gt;
+    st=&amp;gt;start: 用户登陆
+    op=&amp;gt;operation: 登陆操作
+    cond=&amp;gt;condition: 登陆成功 Yes or No?
+    e=&amp;gt;end: 进入后台
+    st-&amp;gt;op-&amp;gt;cond
+    cond(yes)-&amp;gt;e
+    cond(no)-&amp;gt;op
+    &amp;lt;/code&amp;gt;&amp;lt;/pre&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Jekyll会把两个“```”之间的内容处理为格式文本块，同时指定它的样式，一般MarkDown工具都会有内置的一套样式，用来支持大多数格式文本块，尤其是代码块。这也是很多MarkDown工具支持对不同语言有不同关键字高亮，不同语言的高亮又不同配色的原因。&lt;/p&gt;
+
+&lt;p&gt;那么如何让描述流程图的文本块渲染成真正的流程图呢？&lt;/p&gt;
+
+&lt;h3 id=&quot;前端绘图框架在jekyll中的使用&quot;&gt;前端绘图框架在Jekyll中的使用&lt;/h3&gt;
+
+&lt;p&gt;既然MarkDown本身对流程图的渲染使用的是前端框架，那我们来看一下在网页中我们如何使用文本来展示流程图呢？&lt;/p&gt;
+
+&lt;p&gt;以&lt;a href=&quot;https://github.com/bramp/js-sequence-diagrams&quot;&gt;js-sequence-diagrams&lt;/a&gt;为例，它的github主页介绍的使用方法如下:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Text&quot;&gt;	 ```
+    &amp;lt;div class=&quot;diagram&quot;&amp;gt;A-&amp;gt;B: Message&amp;lt;/div&amp;gt;
+    &amp;lt;script&amp;gt;
+    var options = {theme: 'hand'};
+    $(&quot;.diagram&quot;).sequenceDiagram(options);
+    &amp;lt;/script&amp;gt;
+    ```
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;例子中div里的内容就是描述时序图的文本，然后通过js代码拿到样式为“diagram”的div，通过调用js-sequence-diagrams框架的方法完成渲染。这个框架使用起来非常简单了。&lt;/p&gt;
+
+&lt;p&gt;回到我们jekyll生成的html代码中，不同于上面例子的代码，jekyll生成的html片段是使用pre标签包裹的，样式类名是：”language-sequence“，其中”language-“是固定的前缀，后面是什么取决你在”```“后写的是什么。我们是否可以通过拿到样式名为“language-sequence”的标签调用框架方法来完成渲染呢？&lt;/p&gt;
+
+&lt;p&gt;在你的jekyll博客目录有一个layout文件夹，里面有一个post.html文件，这个文件是你的每篇博文的一个模板，发布时，post目录下的每篇博文(MarkDown文件)会以post.html为模板生成对应的html文件，所以我们可以在post.html中接入这些前端框架让我们的每篇文章都自动支持流程图、时序图等等。&lt;/p&gt;
+
+&lt;p&gt;在post.html中添加如下代码：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&amp;lt;script src=&quot;/leung-c.github.io/js/jquery.min.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;script src=&quot;/leung-c.github.io/js/webfont.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;script src=&quot;/leung-c.github.io/js/snap.svg-min.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;script src=&quot;/leung-c.github.io/js/underscore-min.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+&amp;lt;script src=&quot;/leung-c.github.io/js/sequence-diagram.min.js&quot;&amp;gt;&amp;lt;/script&amp;gt;
+
+&amp;lt;script&amp;gt;
+    $(&quot;.language-sequence&quot;).sequenceDiagram({theme: 'simple'});
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;前面全部都是引入官方指定依赖的js库，最后一个是引入sequence-diagram.min.js自身。后面的代码块中我按照官方的例子：获取language-sequence样式类的标签，然后调用框架渲染。修改后发布一下Jekyll，就可以看到效果。这个方案确实是可行的。&lt;/p&gt;
+
+&lt;p&gt;对其他框架的接入大同小异，只是可能没有js-sequence-diagrams这么傻瓜氏的使用而已，比如flowchart.js，它的官方用例是这样的:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Text&quot;&gt;		```
+    	&amp;lt;div id=&quot;diagram&quot;&amp;gt;&amp;lt;/div&amp;gt;
+    	&amp;lt;script&amp;gt;
+        	var diagram = flowchart.parse(&quot;the code definition&quot;);//此处为流程描述代码
+        	diagram.drawSVG('diagram');
+    	&amp;lt;/script&amp;gt;
+    	&amp;lt;div&amp;gt;
+    	```
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;好像不支持直接使用标签来调用它的方法完成渲染，这也意味着我们不能这么写：$(“.language-flow”).drawSVG();它的例子中是有一个div，和language-sequence中可以直接在div中写流程代码不同，这个div使用来承载流程图的。所以我需要拿到样式为：language-flow的标签里的内容即流程代码，创建一个新标签来完成流程图的渲染，具体代码如下:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Text&quot;&gt;	```
+	&amp;lt;script&amp;gt;
+	    function flow(name,f){
+	        var chart = flowchart.parse(f);
+	        chart.drawSVG(name);
+	    }
+	    window.onload = function (){
+	        var cd = document.getElementsByClassName(&quot;language-flow&quot;);
+	        for (var i = 0; i &amp;lt; cd.length; i++) {
+	            var t = cd[i].textContent;
+	            var canvas = &quot;canvas&quot; + i;
+	            cd[i].innerHTML = &quot;&amp;lt;div id=\&quot;&quot; + canvas + &quot;\&quot;&amp;gt;&amp;lt;/div&amp;gt;&quot;
+	            flow(canvas, t);
+	        }
+	    }
+	&amp;lt;/script&amp;gt;
+	```
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;上面的代码即可使你的jekyll博客支持流程图，同样的方式可以让我们扩展更多的其他好用的前端框架，如mermaid等。&lt;/p&gt;
+
+</description>
+        <pubDate>Thu, 23 Nov 2017 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/leung-c.github.io/blog/2017/11/23/FlowInBlog/</link>
+        <guid isPermaLink="true">http://localhost:4000/leung-c.github.io/blog/2017/11/23/FlowInBlog/</guid>
+        
+        <category>Github</category>
+        
+        <category>Flowchart</category>
+        
+        <category>blog</category>
+        
+        
+        <category>blog</category>
+        
+      </item>
     
       <item>
         <title>objective-c中的对象、类和元类</title>
@@ -639,7 +796,7 @@ UserCellViewModel—&amp;gt;BaseInfoViewModel
       </item>
     
       <item>
-        <title>基于tableview的页面组件化方案</title>
+        <title>基于tableview的页面动态化、组件化方案</title>
         <description>&lt;p&gt;什么是页面动态化？&lt;/p&gt;
 &lt;blockquote&gt;
   &lt;p&gt;本文所说的页面动态化是指：在不修改APP代码的情况，页面的展示形态和数据根据服务端的配置是可变化的。
@@ -999,6 +1156,22 @@ ComponentBaseView--&amp;gt;ComponentContainer: +heightForHeaderView\n+heightForC
 ComponentBaseView--&amp;gt;ComponentContainer: +ViewtForSection\n+CellForRow
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;pre&gt;&lt;code class=&quot;language-flow&quot;&gt;st=&amp;gt;start: Zallgo://memberLevel?serviceType=1
+ed=&amp;gt;end: 更新页面
+logn=&amp;gt;condition: 是否已登录
+toLogin=&amp;gt;subroutine: 登录
+pg=&amp;gt;operation: 进入等级说明页
+data=&amp;gt;inputoutput: 获取会员数据
+api=&amp;gt;condition: API成功
+hasdata=&amp;gt;condition: 是否有数据
+nodata=&amp;gt;operation: 空态页
+hint=&amp;gt;operation: 异常提示
+st-&amp;gt;logn(yes)-&amp;gt;pg-&amp;gt;data-&amp;gt;api(yes)-&amp;gt;hasdata(yes)-&amp;gt;ed
+logn(no)-&amp;gt;toLogin-&amp;gt;pg(right)
+api(no)-&amp;gt;hint
+hasdata(no)-&amp;gt;nodata
+&lt;/code&gt;&lt;/pre&gt;
+
 </description>
         <pubDate>Wed, 25 Jan 2017 00:00:00 +0800</pubDate>
         <link>http://localhost:4000/leung-c.github.io/blog/2017/01/25/Component/</link>
@@ -1067,11 +1240,14 @@ ComponentBaseView--&amp;gt;ComponentContainer: +ViewtForSection\n+CellForRow
 &lt;span class=&quot;k&quot;&gt;typedef&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;InputCompelete&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;NSString&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;@interface&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;NumberEditView&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;UIView&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;//数量加回调
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ButtonDidPressed&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ButtonDidPressed&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;addAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;//数量减回调
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ButtonDidPressed&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;reduceAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ButtonDidPressed&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;reduceAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;// 输入完成回调
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InputCompelete&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inptutCompelete&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;InputCompelete&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;inptutCompelete&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readonly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UIButton&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;addButton&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;strong&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;readonly&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;UIButton&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;reduceButton&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
@@ -1082,7 +1258,8 @@ ComponentBaseView--&amp;gt;ComponentContainer: +ViewtForSection\n+CellForRow
 
 &lt;div class=&quot;language-objc highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;@implementation&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;NumberEditView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nl&quot;&gt;addToShopCart&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;//为添加购物车功能做好准备工作
-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepareForCartOperation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;prepareForCartOperation&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;n&quot;&gt;__weak&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;setAddAction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
         &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;];&lt;/span&gt;
@@ -1096,36 +1273,42 @@ ComponentBaseView--&amp;gt;ComponentContainer: +ViewtForSection\n+CellForRow
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;add&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;//调用添加接口
-&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;__weak&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;    
+    &lt;span class=&quot;n&quot;&gt;__weak&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;net&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;NSError&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
             &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
             &lt;span class=&quot;c1&quot;&gt;//显示在购车的最新数据
-&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;            
+            &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
             &lt;span class=&quot;p&quot;&gt;..&lt;/span&gt;
         &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;}];&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;reduce&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;//调用减少接口
-&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;__weak&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;    
+    &lt;span class=&quot;n&quot;&gt;__weak&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;net&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;NSError&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
             &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
             &lt;span class=&quot;c1&quot;&gt;//显示在购车的最新数据
-&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;            
+            &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
             &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
         &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;}];&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;updateToNumber&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;NSString&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;numString&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
     &lt;span class=&quot;c1&quot;&gt;//调用更新接口
-&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;__weak&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;    
+    &lt;span class=&quot;n&quot;&gt;__weak&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;typeof&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;self&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;net&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;request&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;^&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;NSError&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;id&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
         &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;error&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;){&lt;/span&gt;
             &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
             &lt;span class=&quot;c1&quot;&gt;//显示在购车的最新数据
-&lt;/span&gt;            &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/span&gt;            
+            &lt;span class=&quot;n&quot;&gt;weakView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;inputText&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;response&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
             &lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
         &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
     &lt;span class=&quot;p&quot;&gt;}];&lt;/span&gt;
@@ -1207,9 +1390,11 @@ ComponentBaseView--&amp;gt;ComponentContainer: +ViewtForSection\n+CellForRow
     &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;p&gt;以上经过真机滑动调试，可能需要做调整，例如：滑到临界点后往回滑动等；但整体的实现应该差不多。这种方法可以解决前面两个问题但是对于第三个问题没办法解决，每次滑动到临界点，继续滑动时superScrollView的确是不滚了，但是childScrollView也没有滚，这是因为每次对手势的识别，是superScrollView、childScrollView两个的其中一个，只有当手指离开屏幕，再次触摸开始滑动时，才有可能(取决于手势的位置)切换到另一个ScrollView识别新的手势。
 问题的核心就在于：每次的滑动手势需要两个ScrollView都能响应！在这个前提下，我们再通过判断是否达到临界点条件来决定哪个ScrollView的手势响应不处理。
 能否拿到UIScrollView的手势对象呢？如果能拿到，我们可以在手势对象的代理方法中来明确设定某个ScrollView的ContentOffset，这似乎是一个可行办法，UIScrollView上的确有个panGestureRecognizer属性，然而看一下这个属性的定义：&lt;/p&gt;
+
 &lt;div class=&quot;language-objc highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Use&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;these&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;accessors&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;to&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;configure&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;the&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;scroll&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;view&lt;/span&gt;&lt;span class=&quot;err&quot;&gt;'&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;s&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;built&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;gesture&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;recognizers&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;
 &lt;span class=&quot;c1&quot;&gt;// Do not change the gestures' delegates or override the getters for these properties.
 &lt;/span&gt;
@@ -1222,22 +1407,26 @@ ComponentBaseView--&amp;gt;ComponentContainer: +ViewtForSection\n+CellForRow
 &lt;h3 id=&quot;uigesturerecognizerdelegate&quot;&gt;UIGestureRecognizerDelegate&lt;/h3&gt;
 
 &lt;p&gt;UIGestureRecognizer(手势识别器)的delegate需要遵守UIGestureRecognizerDelegate协议，在这个协议中有这样的一个方法声明：&lt;/p&gt;
+
 &lt;div class=&quot;language-objc highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BOOL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;gestureRecognizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UIGestureRecognizer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;gestureRecognizer&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;shouldRecognizeSimultaneouslyWithGestureRecognizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UIGestureRecognizer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;otherGestureRecognizer&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
 &lt;p&gt;从上面Scroll的的手势识别器的定义中得知，Scroll中内置的手势识别器的delegate就是ScrollView本身。&lt;/p&gt;
 
 &lt;p&gt;我们看一下苹果官方对这个方法的说明：&lt;/p&gt;
 &lt;blockquote&gt;
   &lt;p&gt;Asks the delegate if two gesture recognizers should be allowed to recognize gestures simultaneously.
-This method is called when recognition of a gesture by either gestureRecognizer or otherGestureRecognizer would block the other gesture recognizer from recognizing its gesture. Note that returning YES is guaranteed to allow simultaneous recognition; returning NO, on the other hand, is not guaranteed to prevent simultaneous recognition because the other gesture recognizer’s delegate may return YES.
-简单翻译一下：
-询问代理对象是否允许两个手势识别器同时识别手势。这个方法在gestureRecognizer(识别器1)或者otherGestureRecognizer(识别器2)进行识别会被调用。如果返回YES表示可以进行同时识别；返回NO则保证不阻止同时识别，因为其它的识别器代理有可能返回YES。&lt;/p&gt;
+This method is called when recognition of a gesture by either gestureRecognizer or otherGestureRecognizer would block the other gesture recognizer from recognizing its gesture. Note that returning YES is guaranteed to allow simultaneous recognition; returning NO, on the other hand, is not guaranteed to prevent simultaneous recognition because the other gesture recognizer’s delegate may return YES.&lt;/p&gt;
 &lt;/blockquote&gt;
+
+&lt;p&gt;简单翻译一下：
+询问代理对象是否允许两个手势识别器同时识别手势。这个方法在gestureRecognizer(识别器1)或者otherGestureRecognizer(识别器2)进行识别会被调用。如果返回YES表示可以进行同时识别；返回NO则保证不阻止同时识别，因为其它的识别器代理有可能返回YES。&lt;/p&gt;
 
 &lt;p&gt;因此，我们需要帮UIScrollView实现这个代理方法，并返回YES，使得外部的ScrollView和内部的Scrollview都能响应在其视图内的手势，未了不必新建一个UIScrollView的子类来实现这个方法，我们通过分类的方式来达到目的。并不是所有的UIScrollView都需要支持多识别器同时识别，所以我们在分类中新增一个属性：shouldRecognizeSimultaneouslyGesture，然后在gestureRecognizer:shouldRecognizeSimultaneouslyWithGestureRecognizer方法中直接返回这个属性。&lt;/p&gt;
 &lt;div class=&quot;language-objc highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/**
  是否需要处理同时发生的手势，内嵌scrollview如需无缝滚动，请设置为YES；
  */&lt;/span&gt;
+ 
 &lt;span class=&quot;k&quot;&gt;@property&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;nonatomic&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;assign&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;BOOL&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;shouldRecognizeSimultaneouslyGesture&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;BOOL&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;gestureRecognizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UIGestureRecognizer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;gestureRecognizer&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;shouldRecognizeSimultaneouslyWithGestureRecognizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UIGestureRecognizer&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;otherGestureRecognizer&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
@@ -1272,11 +1461,13 @@ This method is called when recognition of a gesture by either gestureRecognizer 
 &lt;div class=&quot;language-objc highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;cm&quot;&gt;/**
  @param height 外部ScrollView滑动后需固定的高度
 */&lt;/span&gt;
+
 &lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;superScrollViewDidScrollWithFixedHeight&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CGFloat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 
 &lt;span class=&quot;cm&quot;&gt;/**
  @param superScrollView 外部ScrollView
  */&lt;/span&gt;
+ 
 &lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;childScrollViewDidScrollInSuperScrollView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;UIScrollView&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;superScrollView&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 &lt;div class=&quot;language-objc highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;k&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;void&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;superScrollViewDidScrollWithFixedHeight&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CGFloat&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;

@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
 
-    <title>基于tableview的页面组件化方案 - Code Playground</title>
+    <title>基于tableview的页面动态化、组件化方案 - Code Playground</title>
 
     <link rel="canonical" href="http://localhost:4000/leung-c.github.io/blog/2017/01/25/Component/">
 
@@ -116,7 +116,7 @@
                         <a class="tag" href="/Tags/#组件" title="组件">组件</a>
                         
                     </div>
-                    <h1>基于tableview的页面组件化方案</h1>
+                    <h1>基于tableview的页面动态化、组件化方案</h1>
                     
                     <span class="meta">Posted by LC on January 25, 2017</span>
                 </div>
@@ -493,6 +493,22 @@ ComponentBaseView--&gt;ComponentContainer: +heightForHeaderView\n+heightForCell
 ComponentBaseView--&gt;ComponentContainer: +ViewtForSection\n+CellForRow
 </code></pre>
 
+<pre><code class="language-flow">st=&gt;start: Zallgo://memberLevel?serviceType=1
+ed=&gt;end: 更新页面
+logn=&gt;condition: 是否已登录
+toLogin=&gt;subroutine: 登录
+pg=&gt;operation: 进入等级说明页
+data=&gt;inputoutput: 获取会员数据
+api=&gt;condition: API成功
+hasdata=&gt;condition: 是否有数据
+nodata=&gt;operation: 空态页
+hint=&gt;operation: 异常提示
+st-&gt;logn(yes)-&gt;pg-&gt;data-&gt;api(yes)-&gt;hasdata(yes)-&gt;ed
+logn(no)-&gt;toLogin-&gt;pg(right)
+api(no)-&gt;hint
+hasdata(no)-&gt;nodata
+</code></pre>
+
 
 
                 <hr>
@@ -524,7 +540,7 @@ ComponentBaseView--&gt;ComponentContainer: +ViewtForSection\n+CellForRow
                 </style>
 
                 <div class="ds-share"
-                    data-thread-key="/blog/2017/01/25/Component" data-title="基于tableview的页面组件化方案"
+                    data-thread-key="/blog/2017/01/25/Component" data-title="基于tableview的页面动态化、组件化方案"
                     data-images="http://localhost:4000/img/green.jpg"
                     data-content="什么是页面动态化？
 
@@ -549,7 +565,7 @@ ComponentBaseView--&gt;ComponentContainer: +ViewtForSection\n+CellForRow
 
                 <!-- 多说评论框 start -->
                 <div class="comment">
-                    <div class="ds-thread" data-thread-key="/blog/2017/01/25/Component" data-title="基于tableview的页面组件化方案" data-url="http://localhost:4000/blog/2017/01/25/Component/"></div>
+                    <div class="ds-thread" data-thread-key="/blog/2017/01/25/Component" data-title="基于tableview的页面动态化、组件化方案" data-url="http://localhost:4000/blog/2017/01/25/Component/"></div>
                 </div>
                 <!-- 多说评论框 end -->
             </div>
@@ -570,7 +586,7 @@ ComponentBaseView--&gt;ComponentContainer: +ViewtForSection\n+CellForRow
 <script>
     $(".language-sequence").sequenceDiagram({theme: 'simple'});
     $(".diagram").sequenceDiagram({theme: 'simple'});
-
+    // $(".language-flow").drawSVG();
 </script>
 <script>
 	function flow(name,f)
@@ -581,14 +597,22 @@ ComponentBaseView--&gt;ComponentContainer: +ViewtForSection\n+CellForRow
 
 	window.onload = function () 
 	{
-		var cd = document.getElementsByClassName("flow");
-		for (var i = 0; i < cd.length; i++) 
-		{
-			var t = cd[i].getElementsByClassName("flowcode")[0].value;
-			var canvas = "canvas" + i;
+        var cd = document.getElementsByClassName("language-flow");
+        for (var i = 0; i < cd.length; i++) {
+            var t = cd[i].textContent;
+            var canvas = "canvas" + i;
 			cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
 			flow(canvas, t);
-		}
+        }
+        // return;
+		// var cd = document.getElementsByClassName("flow");
+		// for (var i = 0; i < cd.length; i++) 
+		// {
+		// 	var t = cd[i].getElementsByClassName("flowcode")[0].value;
+		// 	var canvas = "canvas" + i;
+		// 	cd[i].innerHTML = "<div id=\"" + canvas + "\"></div>"
+		// 	flow(canvas, t);
+		// }
         
 	}
 </script>
