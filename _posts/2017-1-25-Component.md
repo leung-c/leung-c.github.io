@@ -58,7 +58,7 @@ description:
 每种组件的实现就很简单了，继承自ComponentBaseView，写好组件的功能即可，接下来就剩组件的加载过程了。
 
 #### ComponentContainerScrollView
-理论上我们的组件可以用与普通的TableView，但是我们的组件加载有其特殊性：我们需要根据组件类型去实例化并加载组件。为了方便管理组件的加载过程，我们创建了一个ComponentContainerScrollView类来作为专门承载组件的容器，它继承自UITableView，并且其代理和数据源代理是其本身。
+我们的组件加载有其特殊性：需要根据组件类型去实例化并加载组件。为了方便管理组件的加载过程，我们创建了一个ComponentContainerScrollView类来作为专门承载组件的容器，它继承自UITableView，并且其代理和数据源代理是其本身。理论上我们的组件可以用与普通的TableView。
 ```objc
 @interface ComponentContainerScrollView : UITableView
 //组件数据源
@@ -360,6 +360,7 @@ ComponentViewController修改如下：
 @end
 ```
 现在，组件的形式可以很灵活了，它也可以全部只有cell，整个装载过程我们将组件的形式、行为完全交给它自身管理，外部在相关处理点调用对应的方法即可，相关类的交互过程如下：
+
 ```sequence
 ComponentBaseView->ComponentBuilder: +Regist
 Note left of ComponentBaseView: SubClassImplement
@@ -369,22 +370,5 @@ ComponentBuilder->ComponentContainer:GetComponent
 ComponentBaseView-->ComponentContainer: +numberOfRows
 ComponentBaseView-->ComponentContainer: +heightForHeaderView\n+heightForCell
 ComponentBaseView-->ComponentContainer: +ViewtForSection\n+CellForRow
-```
-
-```flow
-st=>start: Zallgo://memberLevel?serviceType=1
-ed=>end: 更新页面
-logn=>condition: 是否已登录
-toLogin=>subroutine: 登录
-pg=>operation: 进入等级说明页
-data=>inputoutput: 获取会员数据
-api=>condition: API成功
-hasdata=>condition: 是否有数据
-nodata=>operation: 空态页
-hint=>operation: 异常提示
-st->logn(yes)->pg->data->api(yes)->hasdata(yes)->ed
-logn(no)->toLogin->pg(right)
-api(no)->hint
-hasdata(no)->nodata
 ```
 

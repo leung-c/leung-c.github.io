@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 一种灵活简单的tablview组装模式
+title: 一种灵活简单的tableview组装模式
 date: 2017-06-10
 categories: blog
 tags: [objective-c,tableview,MVVM]
@@ -14,23 +14,23 @@ UITableView可以说是ios开发过程中用到频率最高的控件了，随便
 
 复杂多变的页面体现了tableview极高的灵活性，甚至天猫、京东的首页都是可以用tableview去实现的。当然他们的首页应该是基于ScrollView，仿tableview复用机制，自己实现了一个组件，具体实现这里不作叙述，后面有机会再探讨。
 回想一下TableView的使用，核心就是下面几个代理方法：
-* cell的行数
 
+* cell的行数
 ```objc
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
 ```
-* 指定位置cell的高度
 
+* 指定位置cell的高度
 ```objc
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 ```
-* 返回指定位置要展示的cell
 
+* 返回指定位置要展示的cell
 ```objc
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 ```
-* 选中指定位置的cell
 
+* 选中指定位置的cell
 ```objc
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 ```
