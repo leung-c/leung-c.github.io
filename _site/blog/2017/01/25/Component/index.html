@@ -188,7 +188,7 @@
 <p>每种组件的实现就很简单了，继承自ComponentBaseView，写好组件的功能即可，接下来就剩组件的加载过程了。</p>
 
 <h4 id="componentcontainerscrollview">ComponentContainerScrollView</h4>
-<p>理论上我们的组件可以用与普通的TableView，但是我们的组件加载有其特殊性：我们需要根据组件类型去实例化并加载组件。为了方便管理组件的加载过程，我们创建了一个ComponentContainerScrollView类来作为专门承载组件的容器，它继承自UITableView，并且其代理和数据源代理是其本身。</p>
+<p>我们的组件加载有其特殊性：需要根据组件类型去实例化并加载组件。为了方便管理组件的加载过程，我们创建了一个ComponentContainerScrollView类来作为专门承载组件的容器，它继承自UITableView，并且其代理和数据源代理是其本身。理论上我们的组件可以用与普通的TableView。</p>
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@interface</span> <span class="nc">ComponentContainerScrollView</span> <span class="p">:</span> <span class="nc">UITableView</span>
 <span class="c1">//组件数据源
 </span>
@@ -483,6 +483,7 @@
 <span class="k">@end</span>
 </code></pre></div></div>
 <p>现在，组件的形式可以很灵活了，它也可以全部只有cell，整个装载过程我们将组件的形式、行为完全交给它自身管理，外部在相关处理点调用对应的方法即可，相关类的交互过程如下：</p>
+
 <pre><code class="language-sequence">ComponentBaseView-&gt;ComponentBuilder: +Regist
 Note left of ComponentBaseView: SubClassImplement
 Note right of ComponentContainer: TableView Delegate&amp;DataSource\nMethods
@@ -491,22 +492,6 @@ ComponentBuilder-&gt;ComponentContainer:GetComponent
 ComponentBaseView--&gt;ComponentContainer: +numberOfRows
 ComponentBaseView--&gt;ComponentContainer: +heightForHeaderView\n+heightForCell
 ComponentBaseView--&gt;ComponentContainer: +ViewtForSection\n+CellForRow
-</code></pre>
-
-<pre><code class="language-flow">st=&gt;start: Zallgo://memberLevel?serviceType=1
-ed=&gt;end: 更新页面
-logn=&gt;condition: 是否已登录
-toLogin=&gt;subroutine: 登录
-pg=&gt;operation: 进入等级说明页
-data=&gt;inputoutput: 获取会员数据
-api=&gt;condition: API成功
-hasdata=&gt;condition: 是否有数据
-nodata=&gt;operation: 空态页
-hint=&gt;operation: 异常提示
-st-&gt;logn(yes)-&gt;pg-&gt;data-&gt;api(yes)-&gt;hasdata(yes)-&gt;ed
-logn(no)-&gt;toLogin-&gt;pg(right)
-api(no)-&gt;hint
-hasdata(no)-&gt;nodata
 </code></pre>
 
 
