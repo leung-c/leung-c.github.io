@@ -10,19 +10,19 @@
 
     <title>ScrollView内嵌tableView无缝滚动的实现 - Code Playground</title>
 
-    <link rel="canonical" href="http://localhost:4000/leung-c.github.io/blog/2016/11/15/ScrollTableView/">
+    <link rel="canonical" href="http://localhost:4000/blog/2016/11/15/ScrollTableView/">
 
     <!-- Icons -->
   <link rel="shortcut icon" href="img/favicon.ico">
 
     <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="/leung-c.github.io/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/leung-c.github.io/css/clean-blog.css">
+    <link rel="stylesheet" href="/css/clean-blog.css">
 
     <!-- Pygments Github CSS -->
-    <link rel="stylesheet" href="/leung-c.github.io/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css">
 
     <!-- Custom Fonts -->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -56,30 +56,30 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/leung-c.github.io/">Code Playground</a>
+            <a class="navbar-brand" href="/">Code Playground</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a href="/leung-c.github.io/">Home</a>
+                    <a href="/">Home</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/about/">About</a>
+                    <a href="/about/">About</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/archive/">Archive</a>
+                    <a href="/archive/">Archive</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/milestone/">milestone</a>
+                    <a href="/milestone/">milestone</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/tags/">Tags</a>
+                    <a href="/tags/">Tags</a>
                 </li>
                 
             </ul>
@@ -93,7 +93,7 @@
     <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
-        background-image: url('/leung-c.github.io/img/green.jpg')
+        background-image: url('/img/green.jpg')
     }
 </style>
 <header class="intro-header" >
@@ -187,10 +187,10 @@
 能否拿到UIScrollView的手势对象呢？如果能拿到，我们可以在手势对象的代理方法中来明确设定某个ScrollView的ContentOffset，这似乎是一个可行办法，UIScrollView上的确有个panGestureRecognizer属性，然而看一下这个属性的定义：</p>
 
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">/</span> <span class="n">Use</span> <span class="n">these</span> <span class="n">accessors</span> <span class="n">to</span> <span class="n">configure</span> <span class="n">the</span> <span class="n">scroll</span> <span class="n">view</span><span class="err">'</span><span class="n">s</span> <span class="n">built</span><span class="o">-</span><span class="k">in</span> <span class="n">gesture</span> <span class="n">recognizers</span><span class="p">.</span>
-<span class="c1">// Do not change the gestures' delegates or override the getters for these properties.
-</span>
-<span class="c1">// Change `panGestureRecognizer.allowedTouchTypes` to limit scrolling to a particular set of touch types.
-</span><span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">readonly</span><span class="p">)</span> <span class="n">UIPanGestureRecognizer</span> <span class="o">*</span><span class="n">panGestureRecognizer</span> <span class="n">NS_AVAILABLE_IOS</span><span class="p">(</span><span class="mi">5</span><span class="n">_0</span><span class="p">);</span>
+<span class="c1">// Do not change the gestures' delegates or override the getters for these properties.</span>
+
+<span class="c1">// Change `panGestureRecognizer.allowedTouchTypes` to limit scrolling to a particular set of touch types.</span>
+<span class="k">@property</span><span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">readonly</span><span class="p">)</span> <span class="n">UIPanGestureRecognizer</span> <span class="o">*</span><span class="n">panGestureRecognizer</span> <span class="n">NS_AVAILABLE_IOS</span><span class="p">(</span><span class="mi">5</span><span class="n">_0</span><span class="p">);</span>
 
 </code></pre></div></div>
 <p>苹果的注释中强调：不要改变这个手势的delegate对象或者重写这个属性的get方法。苹果关了一扇门，却给我们留一扇窗。</p>
@@ -230,8 +230,8 @@ This method is called when recognition of a gesture by either gestureRecognizer 
     <span class="k">if</span><span class="p">(</span><span class="n">scrollView</span> <span class="o">==</span> <span class="n">_superScrollView</span><span class="p">){</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">_superScrollView</span><span class="p">.</span><span class="n">contentOffset</span><span class="p">.</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="n">fixedContentOffsetY</span><span class="p">)</span> <span class="p">{</span>
             <span class="n">_superScrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">fixedContentOffsetY</span><span class="p">);</span>
-            <span class="n">_fixOnTop</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span><span class="c1">//是否要固定到顶了
-</span>        <span class="p">}</span>
+            <span class="n">_fixOnTop</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span><span class="c1">//是否要固定到顶了</span>
+        <span class="p">}</span>
         <span class="k">if</span><span class="p">(</span><span class="n">_fixOnTop</span><span class="p">){</span>
             <span class="n">_superScrollView</span><span class="p">.</span><span class="n">contentOffset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">fixedContentOffsetY</span><span class="p">);</span>
         <span class="p">}</span>
@@ -293,7 +293,7 @@ This method is called when recognition of a gesture by either gestureRecognizer 
                     
                     
                     <li class="next">
-                        <a href="/leung-c.github.io/blog/2016/12/23/CategoryOfView/" data-toggle="tooltip" data-placement="top" title="利用分类让你的view强大起来">Next Post &rarr;</a>
+                        <a href="/blog/2016/12/23/CategoryOfView/" data-toggle="tooltip" data-placement="top" title="利用分类让你的view强大起来">Next Post &rarr;</a>
                     </li>
                     
                 </ul>
@@ -430,7 +430,7 @@ This method is called when recognition of a gesture by either gestureRecognizer 
                 <ul class="list-inline text-center">
                     <!-- kill the Facebook and Weibo -->
                     <li>
-                        <a href="/leung-c.github.io/feed.xml">
+                        <a href="/feed.xml">
                             <span class="fa-stack fa-lg">
                                 <i class="fa fa-circle fa-stack-2x"></i>
                                 <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
@@ -464,13 +464,13 @@ This method is called when recognition of a gesture by either gestureRecognizer 
 </footer>
 
 <!-- jQuery -->
-<script src="/leung-c.github.io/js/jquery.min.js "></script>
+<script src="/js/jquery.min.js "></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/leung-c.github.io/js/bootstrap.min.js "></script>
+<script src="/js/bootstrap.min.js "></script>
 
 <!-- Custom Theme JavaScript -->
-<script src="/leung-c.github.io/js/clean-blog.min.js "></script>
+<script src="/js/clean-blog.min.js "></script>
 
 
 

@@ -16,24 +16,29 @@ UITableView可以说是ios开发过程中用到频率最高的控件了，随便
 回想一下TableView的使用，核心就是下面几个代理方法：
 
 * cell的行数
+
 ```objc
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section 
 ```
 
 * 指定位置cell的高度
+
 ```objc
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 ```
 
 * 返回指定位置要展示的cell
+
 ```objc
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 ```
 
 * 选中指定位置的cell
+
 ```objc
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 ```
+
 上面的方法决定了cell展现效果、交互操作。相信大家对tablview代理方法的执行顺序，复用机制应该是是烂熟于心了。回到上面天猫或京东的商品详情页面，如果使用tableview的话我们需要做哪些事呢？
 在回答这个问题前我们先分析一下问题：
 1. cell的个数固定吗？
@@ -48,6 +53,7 @@ UITableView可以说是ios开发过程中用到频率最高的控件了，随便
 cell点击的其实应该是最后需要处理的，如果解决了cell的呈现，如何区分cell点击进行对应业务的处理也就迎刃而解了。
 
 如何组装cell？最简单粗暴的方案是依据indexPath确定对应位置的cell，但这方案毫无可读性、维护性可言。我们可以模拟一下，如果是这个方案那上面四个代理方法将会是什么样子
+
 ```objc
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if(section == 0){
@@ -71,6 +77,7 @@ cell点击的其实应该是最后需要处理的，如果解决了cell的呈现
     .......
 }
 ```
+
 ```objc
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     if(indexPath.section == 0){
@@ -86,6 +93,7 @@ cell点击的其实应该是最后需要处理的，如果解决了cell的呈现
     ....
 }
 ```
+
 模拟代码写到这里我就不想也不必写下去了，我只是简单的模拟了一下，真个过程是非常枯燥繁琐的，每添加一行if else都需要对前面的判断分支进行逻辑梳理，看看indexpath数的是否正确，，而且整个过程需要重复四遍，因为你需要实现四个代理方法。我相信很多人在从业经历中或多或少看到这养糟糕的代码，可能一个简单的页面最终实现后的代码行数奔1000＋了。最痛苦的是好不容易显示正确功能完成，出现bug后调试过程绝对让人崩溃，更别说日后产品要求调整相关信息的显示顺序了，这又会让人脱一层皮。
 
 那么有没有一种比较轻松明了、可维护、可扩展的的方式呢？你应该也有自己的方案，这里说一下我平时采用的方式，并且将这种方式可以扩展到CollectionView，最终我们初步形成了一套简单的框架，让开发人员只需要关注业务数据和业务处理，整个个cell装载的过程是透明的。在这个方式下，开发只需要做两件事：根据业务维护数据、写cell。下面我们看一下具体是什么样的方式。
@@ -93,6 +101,7 @@ cell点击的其实应该是最后需要处理的，如果解决了cell的呈现
 页面的呈现是依赖于数据的，也就是说有A数据那就有需要显示A的cell，没有A数据也就无需A cell了，我们先不去关注这个A到底需要在第几个section的第几个位置，假如我们先把cell写好了，后端同学的接口也提供了，现在我们要把数据通过cell呈现到界面上，仔细想一下我们还缺什么呢？
 
 我们还缺少数据和界面的描述。以商品标题为例：“Apple／苹果 iPhone8...” 这个是数据，这个数据展现时要黑色18号字体、50的行高等等，现在我们需要建立对数据要如何呈现的描述，创建一个类完成这个工作：
+
 ```objc
 @interface InfoCellViewModel : NSObject
 //标题
@@ -107,22 +116,28 @@ cell点击的其实应该是最后需要处理的，如果解决了cell的呈现
 @property (strong,nonatomic) UIColor *titleColor;
 @end
 ```
+
 从类名可以看到这里实际是使用MVVM模式。对商品标题来说我们创建一个InfoCellViewModel实例维护好对应属性就行了，可是使用什么cell去显示？显示多高？显然我们加一个属性表示要用的cell就行了：
+
 ```objc
 //cell的复用id
 
 @property (copy , nonatomic) NSString *cellReuseId;
 @property (assign , nonatomic) CGFloat cellHeight;
 ```
+
 现在数据显示所需要的信息基本都具备了，对于要显示商品标题我们可以这样描述它了：
+
 ```objc
 InfoCellViewModel *title = [InfoCellViewModel new];
 title.title = @"iphone8";
 title.description = @"不要钱";
 title.cellReuseId = @"TitleInfoTableViewCell";
 title.cellHeight = 100;//这里也可以换成动态计算的高度
+
 ```
 按照这种方式，其它的数据我们也可以描述出来了，当然可能有的数据InfoCellViewModel是描述不了的，比如：购买数量（可编辑的），我们再创建一个可以描述这些数据的类就行了，创建ViewMode类时一定要注意：它的作用是用来描述数据显示的，不要牵扯具体的业务数据和业务逻辑。另外cell的高度、cell复用Id这些是基础信息是必有的，所以我们可以建一个基类BaseCellViewModel来定义这些信息，其它类继承即可。
+
 ```objc
 //商品标题cell
 
@@ -146,8 +161,10 @@ price.textKeyboardtype = UIKeyboardTypeNum;
     ....
 price.cellReuseId = @"TextInputTableViewCell";
 ```
+
 到这里我们已经完成了对需要显示数据的描述，现在我们要做的就是将这个描述数据和tableView的代理方法联系起来，并通过tableView的代理方法帮我们决定什么位置显示什么cell。那么，我们需要做的就是将这些描述对象维护到数组就行了，
 前面我们说过：有数据A就显示A的cell，我们维护描述对象时就可以做到这一点了：
+
 ```objc
 NSMutableArray  *allSections = [NSMutableArray array];
 
@@ -183,7 +200,9 @@ InputTextCellViewModel *price = [InputTextCellViewModel new];
 
 allSections = @[section1Cells,section2Cells,.....];
 ```
+
 上面的代码就是整个tableview要现实的数据的描述了，对于tableView的代理方法里面的实现就非常简单了，不需要任何硬编码：
+
 ```objc
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     NSMutableArray ＊cells = self.allSections[section]
@@ -203,12 +222,16 @@ allSections = @[section1Cells,section2Cells,.....];
     return cell;
 }
 ```
+
 那么cell的点击我们怎么去处理呢？如同处理使用什么cell来现实的问题一样，我们在描述对象上创建block回调来解决：
+
 ```objc
 typedef id(^CallBackBlock)();
 @property (copy, nonatomic) CallBackBlock callBack;
 ```
+
 于是，当某些数据需要处理点击时，我们在维护它的描述对象时写好回调就行了：
+
 ```objc
 InfoCellViewModel *coupon = [InfoCellViewModel new];
         ...

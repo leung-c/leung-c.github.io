@@ -10,19 +10,19 @@
 
     <title>objective-c中的对象、类和元类 - Code Playground</title>
 
-    <link rel="canonical" href="http://localhost:4000/leung-c.github.io/blog/2017/07/02/MetaClass/">
+    <link rel="canonical" href="http://localhost:4000/blog/2017/07/02/MetaClass/">
 
     <!-- Icons -->
   <link rel="shortcut icon" href="img/favicon.ico">
 
     <!-- Bootstrap Core CSS -->
-    <link rel="stylesheet" href="/leung-c.github.io/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/leung-c.github.io/css/clean-blog.css">
+    <link rel="stylesheet" href="/css/clean-blog.css">
 
     <!-- Pygments Github CSS -->
-    <link rel="stylesheet" href="/leung-c.github.io/css/syntax.css">
+    <link rel="stylesheet" href="/css/syntax.css">
 
     <!-- Custom Fonts -->
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -56,30 +56,30 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/leung-c.github.io/">Code Playground</a>
+            <a class="navbar-brand" href="/">Code Playground</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a href="/leung-c.github.io/">Home</a>
+                    <a href="/">Home</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/about/">About</a>
+                    <a href="/about/">About</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/archive/">Archive</a>
+                    <a href="/archive/">Archive</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/milestone/">milestone</a>
+                    <a href="/milestone/">milestone</a>
                 </li>
                 
                 <li>
-                    <a href="/leung-c.github.io/tags/">Tags</a>
+                    <a href="/tags/">Tags</a>
                 </li>
                 
             </ul>
@@ -93,7 +93,7 @@
     <!-- Post Header -->
 <style type="text/css">
     header.intro-header{
-        background-image: url('/leung-c.github.io/img/green.jpg')
+        background-image: url('/img/green.jpg')
     }
 </style>
 <header class="intro-header" >
@@ -195,13 +195,13 @@
 <h5 id="什么数据结构才能称之为对象">什么数据结构才能称之为对象？</h5>
 <p>在面向对象的语言体系中对象指的是类的实例，每个对象都有类。这是面向对象的基本概念，那么对象和类采用什么样的数据结构进行表示的呢？在Objective-C中，含有一个指针且该指针可以正确指向类的数据结构，都可以被视作为对象。
 在Objective-C中，对象最基本的定义是这样的：</p>
-<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">/// Represents an instance of a class.
-</span>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">/// Represents an instance of a class.</span>
+
 <span class="k">struct</span> <span class="n">objc_object</span> <span class="p">{</span>
     <span class="n">Class</span> <span class="n">isa</span>  <span class="n">OBJC_ISA_AVAILABILITY</span><span class="p">;</span>
 <span class="p">};</span>
-<span class="c1">/// A pointer to an instance of a class.
-</span>
+<span class="c1">/// A pointer to an instance of a class.</span>
+
 <span class="k">typedef</span> <span class="k">struct</span> <span class="n">objc_object</span> <span class="o">*</span><span class="n">id</span><span class="p">;</span>
 </code></pre></div></div>
 <p>objc_object结构体表示某个类的一个实例(对象)，id表示objc_object类型的结构体指针。对象的类型是 isa指针决定的，它指向对象所属的类。其实字面意思就是“is a”。表示：“是一个什么什么”
@@ -277,14 +277,14 @@ self和supper的决定了是编译时方法调用是使用objc_msgSend还是的o
 类其实也是一种对象，我们称之为：类对象，所以和对象一样它有isa指针指向它所属的类（元类）。isa指针的类型是Class，说明元类和类用的是同一种数据结构，Objective-C的设计哲学中，一切都是对象，那么元类也可以看做为对象，这和万物皆对象的思想是一致的。这里我们可以思考一个问题：对象和类的isa指向它们所属的类，那元类的isa指针呢？按照Class的定义isa指向所属类，而元类本身也是Class，isa的指针不可能无限指向新的类。
 我们可以写代码验证一下：</p>
     <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">NSObject</span><span class="o">*</span> <span class="n">obj</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSObject</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
-     <span class="c1">//类
-</span>
+     <span class="c1">//类</span>
+
      <span class="n">Class</span> <span class="n">instanceClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span> <span class="nf">class</span><span class="p">];</span>
-     <span class="c1">//元类（类的isa指向）
-</span>
+     <span class="c1">//元类（类的isa指向）</span>
+
      <span class="n">Class</span> <span class="n">metaOfInstanceClass</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">instanceClass</span><span class="p">);</span>
-     <span class="c1">//元类的类（元类的isa指向）
-</span>
+     <span class="c1">//元类的类（元类的isa指向）</span>
+
      <span class="n">Class</span> <span class="n">rootMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">metaOfInstanceClass</span><span class="p">);</span>
 </code></pre></div>    </div>
     <p>在控制台调制可以看到以下信息： 
@@ -294,20 +294,20 @@ self和supper的决定了是编译时方法调用是使用objc_msgSend还是的o
 
 <p>NSObject元类的isa指向了自己，这里我们需要怀疑的是NSObject是所有类的根类，它的元类是否具有特殊性，就像它没有父类一样，我们新建一个类试一试：</p>
 <div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Animal</span><span class="o">*</span> <span class="n">animal</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Animal</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
-        <span class="c1">//类
-</span>
+        <span class="c1">//类</span>
+
 <span class="n">Class</span> <span class="n">instanceClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">animal</span> <span class="nf">class</span><span class="p">];</span>
-        <span class="c1">//元类（类的isa指向）
-</span>
+        <span class="c1">//元类（类的isa指向）</span>
+
 <span class="n">Class</span> <span class="n">metaOfInstanceClass</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">instanceClass</span><span class="p">);</span>
-        <span class="c1">//元类的类（元类的isa指向）
-</span>
+        <span class="c1">//元类的类（元类的isa指向）</span>
+
 <span class="n">Class</span> <span class="n">rootMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">metaOfInstanceClass</span><span class="p">);</span>
-        <span class="c1">//NSObject类
-</span>
+        <span class="c1">//NSObject类</span>
+
 <span class="n">Class</span> <span class="n">rootObjClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">];</span>
-        <span class="c1">//NSObject元类
-</span>        
+        <span class="c1">//NSObject元类</span>
+        
 <span class="n">Class</span> <span class="n">rootObjcMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">rootObjClass</span><span class="p">);</span>
 </code></pre></div></div>
 <p>控制台信息：
@@ -322,35 +322,35 @@ self和supper的决定了是编译时方法调用是使用objc_msgSend还是的o
 </ul>
 
 <p>在上面的class的定义中，有一个super_class成员，它指向当前类的父类，那么MetaClass的super_class指向哪里呢？我新建一个子类看看：</p>
-<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// Cat继承自Animal类
-</span>
+<div class="language-objc highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// Cat继承自Animal类</span>
+
         <span class="n">Cat</span><span class="o">*</span> <span class="n">animal</span> <span class="o">=</span> <span class="p">[[</span><span class="n">Cat</span> <span class="nf">alloc</span><span class="p">]</span><span class="nf">init</span><span class="p">];</span>
-        <span class="c1">//类
-</span>
+        <span class="c1">//类</span>
+
         <span class="n">Class</span> <span class="n">class</span> <span class="o">=</span> <span class="p">[</span><span class="n">animal</span> <span class="nf">class</span><span class="p">];</span>
-        <span class="c1">//父类
-</span>
+        <span class="c1">//父类</span>
+
         <span class="n">Class</span> <span class="n">supperOfClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">class</span> <span class="nf">superclass</span><span class="p">];</span>
-        <span class="c1">//元类（类的isa指向）
-</span>
+        <span class="c1">//元类（类的isa指向）</span>
+
         <span class="n">Class</span> <span class="n">metaOfClass</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">class</span><span class="p">);</span>
-        <span class="c1">//元类的元类（元类的isa指向）
-</span>
+        <span class="c1">//元类的元类（元类的isa指向）</span>
+
         <span class="n">Class</span> <span class="n">metaOfMetaCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">metaOfClass</span><span class="p">);</span>
-        <span class="c1">//元类的父类
-</span>
+        <span class="c1">//元类的父类</span>
+
         <span class="n">Class</span> <span class="n">supperOfMetaCls</span> <span class="o">=</span> <span class="p">[</span><span class="n">metaOfClass</span> <span class="nf">superclass</span><span class="p">];</span>
-        <span class="c1">//NSObject类
-</span>
+        <span class="c1">//NSObject类</span>
+
         <span class="n">Class</span> <span class="n">rootObjClass</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSObject</span> <span class="nf">class</span><span class="p">];</span>
-        <span class="c1">//NSObject的父类
-</span>
+        <span class="c1">//NSObject的父类</span>
+
         <span class="n">Class</span> <span class="n">supperOfRootCls</span> <span class="o">=</span> <span class="p">[</span><span class="n">rootObjClass</span> <span class="nf">superclass</span><span class="p">];</span>
-        <span class="c1">//NSObject元类
-</span>
+        <span class="c1">//NSObject元类</span>
+
         <span class="n">Class</span> <span class="n">metaOfRootCls</span> <span class="o">=</span> <span class="n">object_getClass</span><span class="p">(</span><span class="n">rootObjClass</span><span class="p">);</span>
-        <span class="c1">//NSObject元类的父类
-</span>
+        <span class="c1">//NSObject元类的父类</span>
+
         <span class="n">Class</span> <span class="n">superOfRootObjMetaCls</span> <span class="o">=</span> <span class="p">[</span><span class="n">metaOfRootCls</span> <span class="nf">superclass</span><span class="p">];</span>
 </code></pre></div></div>
 <p>我们来看看各个变量的值：</p>
@@ -385,12 +385,12 @@ self和supper的决定了是编译时方法调用是使用objc_msgSend还是的o
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/leung-c.github.io/blog/2017/06/10/TableviewAssemble/" data-toggle="tooltip" data-placement="top" title="一种灵活简单的tablview组装模式">&larr; Previous Post</a>
+                        <a href="/blog/2017/06/10/TableviewAssemble/" data-toggle="tooltip" data-placement="top" title="一种灵活简单的tableview组装模式">&larr; Previous Post</a>
                     </li>
                     
                     
                     <li class="next">
-                        <a href="/leung-c.github.io/blog/2017/11/23/FlowInBlog/" data-toggle="tooltip" data-placement="top" title="让你的GithubPage个人博客支持流程图">Next Post &rarr;</a>
+                        <a href="/blog/2017/09/03/CategoryLoad/" data-toggle="tooltip" data-placement="top" title="OC中分类Category的探究">Next Post &rarr;</a>
                     </li>
                     
                 </ul>
@@ -533,7 +533,7 @@ self和supper的决定了是编译时方法调用是使用objc_msgSend还是的o
                 <ul class="list-inline text-center">
                     <!-- kill the Facebook and Weibo -->
                     <li>
-                        <a href="/leung-c.github.io/feed.xml">
+                        <a href="/feed.xml">
                             <span class="fa-stack fa-lg">
                                 <i class="fa fa-circle fa-stack-2x"></i>
                                 <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
@@ -567,13 +567,13 @@ self和supper的决定了是编译时方法调用是使用objc_msgSend还是的o
 </footer>
 
 <!-- jQuery -->
-<script src="/leung-c.github.io/js/jquery.min.js "></script>
+<script src="/js/jquery.min.js "></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="/leung-c.github.io/js/bootstrap.min.js "></script>
+<script src="/js/bootstrap.min.js "></script>
 
 <!-- Custom Theme JavaScript -->
-<script src="/leung-c.github.io/js/clean-blog.min.js "></script>
+<script src="/js/clean-blog.min.js "></script>
 
 
 
