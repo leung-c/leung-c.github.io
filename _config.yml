@@ -68,4 +68,4 @@ bing_verify:
 
 # Links to include in footer navigation
 
-remote_theme: jekyll-theme-tactile
+theme: minima
