@@ -23,8 +23,7 @@ facebook_username:
 weibo_username: 
 zhihu_username: 
 
-plugins:
-  - jekyll-paginate
+plugins: [jekyll-paginate]
 
 # Build settings  
 # use Github Flavored Markdown !important  
